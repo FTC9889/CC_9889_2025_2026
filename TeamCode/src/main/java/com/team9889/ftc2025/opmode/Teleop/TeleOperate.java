@@ -25,5 +25,14 @@ public class TeleOperate extends LinearOpMode {
         } else {
             mRobot.mTurrent.setRotationPower(0);
         }
+
+
+        if (gamepad1.right_bumper) {
+            mRobot.mTurrent.setArcPower(1);
+        } else if (gamepad1.left_bumper) {
+            mRobot.mTurrent.setArcPower(-1);
+        } else {
+            mRobot.mTurrent.setArcPower(0);
+        }
     }
 }

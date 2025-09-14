@@ -6,12 +6,16 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Serializer {
 
-    DcMotor Serializer;
+    DcMotor serializer;
 
     ColorSensor colorS1, colorS2, colorS3;
 
 
     public void init(HardwareMap hardwareMap) {
-        Serializer = hardwareMap.dcMotor.get("serializer");
+        serializer = hardwareMap.dcMotor.get("serializer");
+    }
+
+    public void setSPower(double power) {
+        serializer.setPower(power);
     }
 }

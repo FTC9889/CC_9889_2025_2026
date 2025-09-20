@@ -1,4 +1,4 @@
-package com.team9889.ftc2025.opmode.Auto;
+package com.team9889.ftc2025.Opmode.Auto;
 
 public class Pedro_Path_Generated_Path {
 

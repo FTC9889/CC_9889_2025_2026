@@ -1,5 +1,6 @@
 package com.team9889.ftc2025.Subsystem.EverybotStuff;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Robot {
@@ -14,5 +15,11 @@ public class Robot {
         mIntake.init(hardwareMap);
         mCatapult.init(hardwareMap);
         mFoot.init(hardwareMap);
+    }
+
+    public void encoder(double distance, LinearOpMode opMode){
+        while (Math.abs(mDrive.front_encoder()) < distance && opMode.opModeIsActive()) opMode.sleep(10);
+        mDrive.brakeAndReset();
+
     }
 }

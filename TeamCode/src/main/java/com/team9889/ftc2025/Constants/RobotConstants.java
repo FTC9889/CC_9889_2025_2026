@@ -14,12 +14,4 @@ public class RobotConstants {
     public double CATAPULT_UP_POWER = -1.0;
     public double CATAPULT_DOWN_POWER = 1.0;
 
-    public enum CatapultModes {UP, DOWN, BRAKE}
-
-    public CatapultModes pivotMode;
-
-    public enum FootMode {UP, DOWN, BRAKE}
-
-    public FootMode footmode;
-
 }

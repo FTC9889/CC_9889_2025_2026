@@ -14,4 +14,9 @@ public class Catapult {
         catapult1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         catapult2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
+
+    public void setPower(double power) {
+        catapult1.setPower(power);
+        catapult2.setPower(power);
+    }
 }

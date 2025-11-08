@@ -6,13 +6,11 @@
 //
 //    public Drive mDrive = new Drive();
 //    public Intake mIntake = new Intake();
-//    public Serializer mSeializer = new Serializer();
 //    public Turrent mTurrent = new Turrent();
 //
 //    public void init(HardwareMap hardwareMap) {
 //        mDrive.init(hardwareMap);
 //        mIntake.init(hardwareMap);
-//        mSeializer.init(hardwareMap);
 //        mTurrent.init(hardwareMap);
 //
 //    }

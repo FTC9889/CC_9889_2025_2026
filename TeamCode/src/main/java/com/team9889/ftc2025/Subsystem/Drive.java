@@ -1,14 +1,21 @@
 //package com.team9889.ftc2025.Subsystem;
 //
+//import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.*;
+//
+//import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 //import com.qualcomm.hardware.rev.Rev9AxisImu;
 //import com.qualcomm.robotcore.hardware.DcMotor;
+//import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
 //import com.qualcomm.robotcore.hardware.DcMotorSimple;
 //import com.qualcomm.robotcore.hardware.HardwareMap;
+//import com.qualcomm.robotcore.hardware.IMU;
 //
 //public class Drive {
 //    DcMotor leftFront,leftBack, rightFront, rightBack;
 //
-//    public Rev9AxisImu imu;
+//    IMU imu;
+//
+//    GoBildaPinpointDriver pinpoint;
 //
 //    public void init(HardwareMap hardwareMap) {
 //        leftFront = hardwareMap.dcMotor.get("leftfront");
@@ -18,8 +25,6 @@
 //
 //        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
 //        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
-//
-//        imu = new Rev9AxisImu();
 //
 //        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

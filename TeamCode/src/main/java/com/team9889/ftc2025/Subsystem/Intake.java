@@ -9,6 +9,7 @@
 //
 //    public void init(HardwareMap hardwareMap) {
 //        intake = hardwareMap.dcMotor.get("intake");
+//        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 //    }
 //
 //    public void setPower(double power) {

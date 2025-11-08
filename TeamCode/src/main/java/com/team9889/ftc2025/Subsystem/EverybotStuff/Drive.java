@@ -16,10 +16,10 @@ public class Drive {
     IMU imu;
 
     public void init(HardwareMap hardwareMap) {
-        leftfront = hardwareMap.get(DcMotor.class, "left_front_drive");
-        leftback = hardwareMap.get(DcMotor.class, "left_back_drive");
-        rightfront = hardwareMap.get(DcMotor.class, "right_front_drive");
-        rightback = hardwareMap.get(DcMotor.class, "right_back_drive");
+        leftfront = hardwareMap.get(DcMotor.class, "leftfront");
+        leftback = hardwareMap.get(DcMotor.class, "leftback");
+        rightfront = hardwareMap.get(DcMotor.class, "rightfront");
+        rightback = hardwareMap.get(DcMotor.class, "rightback");
 
         imu = new Rev9AxisImu((I2cDeviceSynchSimple) hardwareMap, true);
 

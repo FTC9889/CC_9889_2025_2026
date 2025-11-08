@@ -23,17 +23,15 @@ public class Auto extends LinearOpMode {
 
 
             mRobot.mCatapult.setPower(mRC.CATAPULT_UP_POWER);
-            mRobot.encoder(((double) tile / 2), this);
 
             if(mRobot.mDrive.getAngle() > -90) {
                 mRobot.mDrive.setPower(0, 0, -0.2);
-                while (mRobot.mDrive.get_angle() > -94 && opModeIsActive()) {
-                    telemetry.addData("gyro", mRobot.mDrive.get_angle());
+                while (mRobot.mDrive.getAngle() > -94 && opModeIsActive()) {
+                    telemetry.addData("gyro", mRobot.mDrive.getAngle());
                     telemetry.update();
                     sleep(10);
                 }
-                mRobot.mDrive.brake();
-                mRobot.mDrive.reset_encoder();
+                mRobot.mDrive.brakeAndReset();
             }
 
 

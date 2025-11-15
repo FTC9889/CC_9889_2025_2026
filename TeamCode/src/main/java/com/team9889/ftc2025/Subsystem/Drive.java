@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 public class Drive {
     DcMotor leftFront,leftBack, rightFront, rightBack;
 
-    IMU imu;
+    public IMU imu;
 
     GoBildaPinpointDriver pinpoint;
 

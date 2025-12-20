@@ -21,7 +21,7 @@ public class Robot {
 //        mZ.init(hardwareMap);
     }
 
-    public double getTurretMovementAngle() {
+    public double TurretRunToPosition() {
         double PoseXFromTarget = mDrive.getPose().getX(DistanceUnit.INCH) - 134;
         double PoseYFromTarget = mDrive.getPose().getY(DistanceUnit.INCH) - 133;
 

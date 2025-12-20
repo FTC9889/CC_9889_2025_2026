@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.team9889.ftc2025.Subsystem.Robot;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 @Autonomous
 @Config
 public class Auto extends LinearOpMode {
@@ -17,9 +19,7 @@ public class Auto extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
-            mRobot.mDrive.setPower(0, 1, 0);
-            sleep(500);
-            mRobot.mDrive.setPower(0, 0, 0);
+
         }
 
 

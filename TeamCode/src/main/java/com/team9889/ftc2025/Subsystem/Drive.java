@@ -6,6 +6,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+
 public class Drive {
     DcMotor leftFront,leftBack, rightFront, rightBack;
 
@@ -52,6 +56,17 @@ public class Drive {
         setPower(v1,v2,v3,v4);
 
     }
+
+    public Pose2D getPose() {
+        return pinpoint.getPosition();
+    }
+
+    public void RobotAngle() {
+        getPose().getHeading(AngleUnit.DEGREES);
+    }
+
+
+
 
 
 }

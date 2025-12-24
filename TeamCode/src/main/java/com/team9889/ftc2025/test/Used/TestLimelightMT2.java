@@ -21,7 +21,7 @@ public class TestLimelightMT2 extends OpMode {
         mRobot.init(hardwareMap);
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.pipelineSwitch(0);
+        limelight.pipelineSwitch(7);
     }
 
     @Override

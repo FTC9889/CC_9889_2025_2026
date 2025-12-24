@@ -1,6 +1,5 @@
 package com.team9889.ftc2025.Opmode.Auto;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.team9889.ftc2025.Subsystem.Robot;
@@ -8,7 +7,6 @@ import com.team9889.ftc2025.Subsystem.Robot;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Autonomous
-@Config
 public class Auto extends LinearOpMode {
     Robot mRobot = new Robot();
     @Override

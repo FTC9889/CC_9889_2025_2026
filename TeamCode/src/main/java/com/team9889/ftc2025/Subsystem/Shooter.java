@@ -17,7 +17,7 @@ public class Shooter {
 
     Servo hoodR, hoodL, turretR, turretL;
 
-    DcMotor shooterR,shooterL;
+    public DcMotor shooterR,shooterL;
 
     AnalogInput sensor;
 

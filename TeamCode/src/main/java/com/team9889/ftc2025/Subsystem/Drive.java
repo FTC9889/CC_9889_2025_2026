@@ -1,6 +1,10 @@
 package com.team9889.ftc2025.Subsystem;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -12,12 +16,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 public class Drive {
     DcMotor leftFront,leftBack, rightFront, rightBack;
-
     public IMU imu;
-
     GoBildaPinpointDriver pinpoint;
 
     public void init(HardwareMap hardwareMap) {
+        imu = hardwareMap.get(IMU.class, "imu");
+        RevHubOrientationOnRobot revHubOrientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
+        imu.initialize(new IMU.Parameters(revHubOrientationOnRobot));
+
         leftFront = hardwareMap.dcMotor.get("leftfront");
         leftBack = hardwareMap.dcMotor.get("leftback");
         rightFront = hardwareMap.dcMotor.get("rightfront");

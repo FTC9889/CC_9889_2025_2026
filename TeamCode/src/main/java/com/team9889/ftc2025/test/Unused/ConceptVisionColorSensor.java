@@ -19,11 +19,10 @@
  * SOFTWARE.
  */
 
-package com.team9889.ftc2025.test;
+package com.team9889.ftc2025.test.Unused;
 
 import android.util.Size;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 

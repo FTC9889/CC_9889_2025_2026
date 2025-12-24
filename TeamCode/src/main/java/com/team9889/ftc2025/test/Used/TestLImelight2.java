@@ -1,4 +1,4 @@
-package com.team9889.ftc2025.test;
+package com.team9889.ftc2025.test.Used;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -16,7 +16,7 @@ public class TestLImelight2 extends LinearOpMode {
 
         telemetry.setMsTransmissionInterval(11);
 
-        limelight.pipelineSwitch(0);
+        limelight.pipelineSwitch(7);
 
         /*
          * Starts polling for data.

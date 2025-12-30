@@ -15,33 +15,27 @@ public class Intake {
 
     public IntakeState CurrentIntakeState = IntakeState.NULL;
     public IntakeState RequestedIntakeState = IntakeState.NULL;
-
-    public TransferState CurrentTransferState = TransferState.NULL;
-    public TransferState RequestedTransferState = TransferState.NULL;
-
-    public GateState CurrentGateState = GateState.NULL;
-    public GateState RequestedGateState = GateState.NULL;
-
     public IntakeState getCurrentIntakeState() {
         return CurrentIntakeState;
     }
-
-    public TransferState getCurrentTransferState() {
-        return CurrentTransferState;
-    }
-
-    public GateState getCurrentGateState() {
-        return CurrentGateState;
-    }
-
     public void setRequestedIntakeState(IntakeState requestedIntakeState) {
         RequestedIntakeState = requestedIntakeState;
     }
 
+    public TransferState CurrentTransferState = TransferState.NULL;
+    public TransferState RequestedTransferState = TransferState.NULL;
+    public TransferState getCurrentTransferState() {
+        return CurrentTransferState;
+    }
     public void setRequestedTransferState(TransferState requestedTransferState) {
         RequestedTransferState = requestedTransferState;
     }
 
+    public GateState CurrentGateState = GateState.NULL;
+    public GateState RequestedGateState = GateState.NULL;
+    public GateState getCurrentGateState() {
+        return CurrentGateState;
+    }
     public void setRequestedGateState(GateState requestedGateState) {
         RequestedGateState = requestedGateState;
     }
@@ -97,7 +91,6 @@ public class Intake {
             }
         }
     }
-
     public enum GateState{
         OPEN(1),
         CLOSED(0),
@@ -124,7 +117,6 @@ public class Intake {
             }
         }
     }
-
     public enum TransferState{
         ON(-1),
         OFF(0),
@@ -158,9 +150,6 @@ public class Intake {
         }
     }
 
-
-
-
     public void init(HardwareMap hardwareMap) {
         gate = hardwareMap.servo.get("gate");
 
@@ -183,7 +172,6 @@ public class Intake {
             CurrentIntakeState = IntakeState.OFF;
         }
     }
-
     double transferPower = 2;
     public void setTransferPower(double power){
         if (transferPower != power) {
@@ -195,7 +183,6 @@ public class Intake {
             CurrentTransferState = TransferState.OFF;
         }
     }
-
     public void setGatePosition(double position) {
         gate.setPosition(position);
     }
@@ -204,15 +191,17 @@ public class Intake {
     public void update() {
 
         //GatePosition
-        setGatePosition(RequestedGateState.value);
-        CurrentGateState = RequestedGateState;
-
+        if (RequestedGateState != CurrentGateState) {
+            setGatePosition(RequestedGateState.value);
+            CurrentGateState = RequestedGateState;
+        }
         //TransferPower
-        setTransferPower(RequestedTransferState.setTargetPower());
-        CurrentTransferState = RequestedTransferState;
-
+        if (RequestedTransferState != CurrentTransferState) {
+            setTransferPower(RequestedTransferState.setTargetPower());
+            CurrentTransferState = RequestedTransferState;
+        }
         //Intake Power
-        if (RequestedIntakeState != IntakeState.OUTTAKE && RequestedTransferState != TransferState.ON) {
+        if (RequestedIntakeState == IntakeState.OUTTAKE && RequestedTransferState == TransferState.ON && RequestedGateState == GateState.CLOSED) {
             outtakeTimer.reset();
             if (outtakeTimer.milliseconds() != 300) {
                 setIntakePower(RequestedIntakeState.setTargetPower());
@@ -221,7 +210,7 @@ public class Intake {
                 setRequestedIntakeState(IntakeState.SLOW);
                 setRequestedTransferState(TransferState.OFF);
             }
-        } else {
+        } else if (RequestedIntakeState != CurrentIntakeState){
             setIntakePower(RequestedIntakeState.setTargetPower());
             CurrentIntakeState = RequestedIntakeState;
         }
@@ -230,7 +219,6 @@ public class Intake {
     public boolean isComplete() {
         return RequestedIntakeState == CurrentIntakeState && RequestedTransferState == CurrentTransferState;
     }
-
     public void requestState(TopLevelState state) {
         RequestedIntakeState = state.intakeState;
         RequestedTransferState = state.transferState;

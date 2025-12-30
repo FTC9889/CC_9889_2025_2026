@@ -11,52 +11,52 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.configuration.annotations.AnalogSensorType;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.R;
 
 public class Shooter {
-
     public Limelight3A limelight;
-
     public Servo hoodR, hoodL, turretR, turretL;
-
     public DcMotorEx shooterR, shooterL;
-
     public AnalogInput sensor;
-
     double currentVoltage;
 
     public ShooterState CurrentShooterState = ShooterState.NULL;
     public ShooterState RequestedShooterState = ShooterState.NULL;
-
-    public TurretState CurrentTurretState = TurretState.NULL;
-    public TurretState RequestedTurretState = TurretState.NULL;
-
-    public HoodState CurrentHoodState = HoodState.NULL;
-    public HoodState RequestedHoodState = HoodState.NULL;
-
     public ShooterState getCurrentShooterState() {
         return CurrentShooterState;
     }
-
     public ShooterState getRequestedShooterState() {
         return RequestedShooterState;
     }
+    public void setRequestedShooterState(ShooterState shooterState) {
+        RequestedShooterState = shooterState;
+    }
 
+    public TurretState CurrentTurretState = TurretState.NULL;
+    public TurretState RequestedTurretState = TurretState.NULL;
     public TurretState getCurrentTurretState() {
         return CurrentTurretState;
     }
-
     public TurretState getRequestedTurretState() {
         return RequestedTurretState;
     }
+    public void setRequestedTurretState(TurretState turretState) {
+        RequestedTurretState = turretState;
+    }
 
+    public HoodState CurrentHoodState = HoodState.NULL;
+    public HoodState RequestedHoodState = HoodState.NULL;
     public HoodState getCurrentHoodState() {
         return CurrentHoodState;
     }
-
     public HoodState getRequestedHoodState() {
         return RequestedHoodState;
+    }
+    public void setRequestedHoodState(HoodState hoodState) {
+        RequestedHoodState = hoodState;
     }
 
     public enum TopLevelState {
@@ -78,7 +78,6 @@ public class Shooter {
         ON(-1),
         OFF(0),
         SLOW(-0.15),
-        OUTTAKE(1),
         NULL(0);
 
         private final double value;
@@ -98,15 +97,12 @@ public class Shooter {
                     return "OFF";
                 case SLOW:
                     return "SLOW";
-                case OUTTAKE:
-                    return "OUTTAKE";
                 case NULL:
                 default:
                     return "NULL";
             }
         }
     }
-
     public enum TurretState{
         TRAKING(-1),
         OFF(0),
@@ -133,7 +129,6 @@ public class Shooter {
             }
         }
     }
-
     public enum HoodState{
         READY(-1),
         NULL(0);
@@ -188,32 +183,71 @@ public class Shooter {
             CurrentShooterState = ShooterState.OFF;
         }
     }
-
     public void setHoodPosition(double position) {
         hoodR.setPosition(position);
         hoodL.setPosition(position);
     }
-
-    public void setTurretPosition(double position) {
+    public void runT2Angle(double angle) {
+        double position = Math.max(0, Math.min(1, angle/360.0));
         turretR.setPosition(position);
         turretL.setPosition(position);
     }
-
     public double getTurrentAngle() {
         return turretL.getPosition() / 360;
     }
 
-
+    public boolean traking = false;
 
     //UPDATE
     public void update() {
+        //Shooter State
+        if (RequestedShooterState != CurrentShooterState) {
+            setShooterPower(RequestedShooterState.setTargetPower());
+            CurrentShooterState = RequestedShooterState;
+        }
+        //Turret State
+        if (RequestedTurretState != CurrentTurretState) {
+            if (RequestedTurretState == TurretState.TRAKING) {
+                double PoseXFromTarget = Drive.robotPose.getPose().getX() - 134;
+                double PoseYFromTarget = Drive.robotPose.getPose().getY() - 133;
 
+                double TargetAngle = 90 - Math.toDegrees(Math.atan2(PoseXFromTarget, PoseYFromTarget));
+                double RobotAngle = Drive.robotPose.getPose().getHeading();
+                double TurretAngle = getTurrentAngle();
+
+                double TargetMovementAngle = -(RobotAngle + TargetAngle);
+
+                if (TargetMovementAngle > 180) {
+                    TargetMovementAngle -= 360;
+                } else if (TargetMovementAngle < -180) {
+                    TargetMovementAngle += 360;
+                }
+
+                double Turret2StartPos = 0 - TurretAngle;
+                double TurretMovementAngle = Turret2StartPos + TargetMovementAngle;
+                double movement = getTurrentAngle() + TurretMovementAngle;
+
+                if (movement > 360) {
+                    movement -= 360;
+                } else if (movement < 360) {
+                    movement += 360;
+                }
+                runT2Angle(movement);
+                CurrentTurretState = RequestedTurretState;
+                CurrentTurretState = RequestedTurretState;
+            } else if (RequestedTurretState == TurretState.OFF) {
+                runT2Angle(180);
+            }
+        }
+        //Hood State
+        if (RequestedHoodState != CurrentHoodState) {
+            //we need the drive pose in here
+        }
     }
 
     public boolean isComplete() {
         return RequestedShooterState == CurrentShooterState && RequestedTurretState == CurrentTurretState && RequestedHoodState == CurrentHoodState;
     }
-
     public void requestState(TopLevelState state) {
         RequestedShooterState = state.shooterState;
         RequestedTurretState = state.turretState;

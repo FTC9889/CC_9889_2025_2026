@@ -1,7 +1,6 @@
 package com.team9889.ftc2025.Opmode.Auto; // make sure this aligns with class location
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
@@ -9,12 +8,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.team9889.ftc2025.Subsystem.Robot;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-
 import java.nio.file.Path;
 
 @Autonomous(name = "Close Auto", group = "Auto")
-public class Close_Auto extends OpMode {
+public class Far extends OpMode {
     Robot mRobot = new Robot();
 
     private Follower follower;

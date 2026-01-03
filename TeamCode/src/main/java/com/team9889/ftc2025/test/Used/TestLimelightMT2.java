@@ -18,7 +18,7 @@ public class TestLimelightMT2 extends OpMode {
     @Override
     public void init() {
         mRobot.init(hardwareMap);
-        mRobot.mShooter.limelight.pipelineSwitch(7);
+        mRobot.mShooter.limelight.pipelineSwitch(0);
     }
 
     @Override

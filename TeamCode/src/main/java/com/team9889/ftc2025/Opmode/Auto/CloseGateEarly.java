@@ -220,7 +220,7 @@ public class CloseGateEarly extends OpMode {
 
     @Override
     public void stop() {
-        // Everything auto-disables
+        Robot.robotPose = mRobot.mFollower.getPose();
     }
 }
 

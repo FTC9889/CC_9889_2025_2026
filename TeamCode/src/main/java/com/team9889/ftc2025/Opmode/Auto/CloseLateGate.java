@@ -215,5 +215,6 @@ public class CloseLateGate extends OpMode {
 
     @Override
     public void stop() {
+        Robot.robotPose = mRobot.mFollower.getPose();
     }
 }

@@ -1,6 +1,5 @@
 package com.team9889.ftc2025.Opmode.Auto; // make sure this aligns with class location
 
-import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
@@ -163,5 +162,6 @@ public class AltFar extends OpMode {
      **/
     @Override
     public void stop() {
+        Robot.robotPose = mRobot.mFollower.getPose();
     }
 }

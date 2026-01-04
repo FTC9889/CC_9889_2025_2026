@@ -12,7 +12,7 @@ import com.team9889.ftc2025.Subsystem.Robot;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.nio.file.Paths;
-@Autonomous
+@Autonomous(name = "CloseLate", group = "CloseAutos", preselectTeleOp = "TeleOperate")
 public class CloseLateGate extends OpMode {
 
     Robot mRobot = new Robot();

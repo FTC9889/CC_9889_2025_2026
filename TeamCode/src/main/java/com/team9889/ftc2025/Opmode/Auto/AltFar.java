@@ -11,7 +11,7 @@ import com.team9889.ftc2025.Subsystem.Robot;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Example Auto", group = "Examples")
+@Autonomous(name = "FarAltTwRows", group = "FarAutos", preselectTeleOp = "TeleOperate")
 public class AltFar extends OpMode {
     Robot mRobot = new Robot();
 

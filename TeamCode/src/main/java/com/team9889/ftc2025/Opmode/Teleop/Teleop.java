@@ -10,6 +10,7 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
 
 import org.firstinspires.ftc.teamcode.R;
@@ -35,10 +36,10 @@ public class Teleop extends OpMode {
         mRobot.mFollower.update();
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
-        pathChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(45, 98))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(45), 0.8))
-                .build();
+//        pathChain = () -> follower.pathBuilder() //Lazy Curve Generation
+//                .addPath(new Path(new BezierLine(follower::getPose, new Pose(45, 98))))
+//                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(45), 0.8))
+//                .build();
 
     }
 
@@ -73,16 +74,29 @@ public class Teleop extends OpMode {
         }
 
         //Automated PathFollowing
-        if (gamepad1.aWasPressed()) {
-            follower.followPath(pathChain.get());
-            automatedDrive = true;
-        }
+//        if (gamepad1.aWasPressed()) {
+//            follower.followPath(pathChain.get());
+//            automatedDrive = true;
+//        }
 
         //Stop automated following if the follower is done
-        if (automatedDrive && (gamepad1.bWasPressed() || !follower.isBusy())) {
-            follower.startTeleopDrive();
-            automatedDrive = false;
+//        if (automatedDrive && (gamepad1.bWasPressed() || !follower.isBusy())) {
+//            follower.startTeleopDrive();
+//            automatedDrive = false;
+//        }
+        boolean press = false;
+        if (gamepad1.aWasPressed() && press == false) {
+            mRobot.mIntake.setRequestedIntakeState(Intake.IntakeState.ON);
+            press = true;
+        } else if (gamepad1.aWasPressed() && press == true) {
+            mRobot.mIntake.setRequestedIntakeState(Intake.IntakeState.OFF);
+            press = false;
+        } else if (gamepad1.bWasPressed()) {
+            mRobot.mIntake.setRequestedIntakeState(Intake.IntakeState.OUTTAKE);
+            press = false;
         }
+
+
 
         telemetryM.debug("position", follower.getPose());
         telemetryM.debug("velocity", follower.getVelocity());

@@ -23,10 +23,6 @@ public class CloseGateEarly extends OpMode {
 
     private int pathState = 0;
 
-    /* ---------------- POSES ---------------- */
-
-    /* ---------------- POSES ---------------- */
-
     public final Pose startPose        = new Pose(56.000, 135.5);
     public final Pose shootPose        = new Pose(56.000, 96.000);
 

@@ -23,8 +23,8 @@ public class CloseLateGate extends OpMode {
 
     private int pathState = 0;
 
-    public final Pose startPose        = new Pose(56.000, 135.5, Math.toRadians(270));
-    public final Pose shootPose        = new Pose(56.000, 96.000,  Math.toRadians(270));
+    public final Pose startPose        = new Pose(56.000, 135.5);
+    public final Pose shootPose        = new Pose(56.000, 96.000);
 
     public final Pose midControlPose   = new Pose(56.501, 83.333);
     public final Pose stackPose        = new Pose(14.800, 84.000);

@@ -19,13 +19,14 @@ public class Far2Rows extends OpMode {
 
     private int pathState;
 
-    private final Pose startPose = new Pose(50.000, 7.500, Math.toRadians(180)); // Start Pose of our robot.
-    private final Pose scorePose = new Pose(50.000, 15.500, Math.toRadians(180)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
-    private final Pose LowIntake1Pose = new Pose(50.000, 7.500, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose LowIntake2Pose = new Pose(8.500, 7.500, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose HighIntakePose = new Pose(8.500, 36.600, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
-    private final Pose HighIntakeControlPoint = new Pose(51.000, 36.000, Math.toRadians(180));
-    private final Pose ParkPose = new Pose(50.000, 30.000, Math.toRadians(180));
+    private final Pose startPose = new Pose(50.000, 7.500);
+    private final Pose scorePose = new Pose(50.000, 15.500);
+    private final Pose LowIntake1Pose = new Pose(50.000, 7.500);
+    private final Pose LowIntake2Pose = new Pose(8.500, 7.500);
+    private final Pose HighIntakePose = new Pose(8.500, 36.600);
+    private final Pose HighIntakeControlPoint = new Pose(51.000, 36.000);
+    private final Pose ParkPose = new Pose(50.000, 30.000);
+
 
     private Path scorePreload;
     private PathChain Drive2ScorePos, LowIntake1, LowIntake2, LowReturn, HighIntake, HighReturn, Park;

@@ -1,4 +1,4 @@
-package com.team9889.ftc2025.Opmode.Auto; // make sure this aligns with class location
+package com.team9889.ftc2025.Opmode.Auto.Unused; // make sure this aligns with class location
 
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
@@ -11,72 +11,58 @@ import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.team9889.ftc2025.Subsystem.Robot;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-
-@Autonomous(name = "FarThreeRows", group = "FarAutos", preselectTeleOp = "TeleOperate")
-public class Far3Rows extends OpMode {
+//@Autonomous(name = "FarTwoRows", group = "FarAutos", preselectTeleOp = "TeleOperate")
+public class Far2Rows extends OpMode {
     Robot mRobot = new Robot();
 
     private Timer pathTimer, actionTimer, opmodeTimer;
 
-    private int pathState; 
+    private int pathState;
 
     private final Pose startPose = new Pose(50.000, 7.500);
     private final Pose scorePose = new Pose(50.000, 15.500);
     private final Pose LowIntake1Pose = new Pose(50.000, 7.500);
     private final Pose LowIntake2Pose = new Pose(8.500, 7.500);
-    private final Pose MidIntakePose = new Pose(8.500, 36.600);
-    private final Pose MidControlPoint = new Pose(51.000, 36.000);
-    private final Pose HighIntakePose = new Pose(8.500, 60.500);
-    private final Pose HighControlPoint = new Pose(47.000, 60.500);
+    private final Pose HighIntakePose = new Pose(8.500, 36.600);
+    private final Pose HighIntakeControlPoint = new Pose(51.000, 36.000);
     private final Pose ParkPose = new Pose(50.000, 30.000);
 
+
     private Path scorePreload;
-    private PathChain Drive2ScorePos, LowIntake1, LowIntake2, LowReturn, MidIntake, MidReturn, HighIntake, HighReturn,  Park;
+    private PathChain Drive2ScorePos, LowIntake1, LowIntake2, LowReturn, HighIntake, HighReturn, Park;
 
     public void buildPaths() {
-        Drive2ScorePos = mRobot.mFollower.pathBuilder()
+        Drive2ScorePos = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
-        LowIntake1 = mRobot.mFollower.pathBuilder()
+        LowIntake1 = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(scorePose, LowIntake1Pose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
-        LowIntake2 = mRobot.mFollower.pathBuilder()
+        LowIntake2 = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(LowIntake1Pose, LowIntake2Pose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
-        LowReturn = mRobot.mFollower.pathBuilder()
+        LowReturn = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(LowIntake2Pose, scorePose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
-        MidIntake = mRobot.mFollower.pathBuilder()
-                .addPath(new BezierCurve(scorePose, MidControlPoint, MidIntakePose))
+        HighIntake = mRobot.mDrive.pathBuilder()
+                .addPath(new BezierCurve(scorePose, HighIntakeControlPoint, HighIntakePose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
-        MidReturn = mRobot.mFollower.pathBuilder()
-                .addPath(new BezierLine(MidIntakePose, scorePose))
+        HighReturn = mRobot.mDrive.pathBuilder()
+                .addPath(new BezierLine(HighIntakePose, scorePose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
-        HighIntake = mRobot.mFollower.pathBuilder().addPath(
-                        new BezierCurve(scorePose, HighControlPoint, HighIntakePose)
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
-
-                .build();
-
-        HighReturn = mRobot.mFollower.pathBuilder().addPath(
-                        new BezierLine(HighIntakePose, scorePose)
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
-                .build();
-
-
-        Park = mRobot.mFollower.pathBuilder()
+        Park = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(scorePose, ParkPose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
@@ -126,14 +112,14 @@ public class Far3Rows extends OpMode {
     public void loop() {
 
         // These loop the movements of the robot, these must be called continuously in order to work
-        mRobot.mFollower.update();
+        mRobot.update();
         autonomousPathUpdate();
 
         // Feedback to Driver Hub for debugging
         telemetry.addData("path state", pathState);
-        telemetry.addData("x", mRobot.mFollower.getPose().getX());
-        telemetry.addData("y", mRobot.mFollower.getPose().getY());
-        telemetry.addData("heading", mRobot.mFollower.getPose().getHeading());
+        telemetry.addData("x", mRobot.mDrive.getPose().getX());
+        telemetry.addData("y", mRobot.mDrive.getPose().getY());
+        telemetry.addData("heading", mRobot.mDrive.getPose().getHeading());
         telemetry.update();
     }
 
@@ -148,9 +134,9 @@ public class Far3Rows extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
-        mRobot.mFollower = Constants.createFollower(hardwareMap);
+        mRobot.mDrive = Constants.createFollower(hardwareMap);
         buildPaths();
-        mRobot.mFollower.setStartingPose(startPose);
+        mRobot.mDrive.setStartingPose(startPose);
 
     }
 
@@ -178,6 +164,6 @@ public class Far3Rows extends OpMode {
      **/
     @Override
     public void stop() {
-        Robot.robotPose = mRobot.mFollower.getPose();
+        Robot.robotPose = mRobot.mDrive.getPose();
     }
 }

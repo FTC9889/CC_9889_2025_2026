@@ -1,10 +1,7 @@
 package com.team9889.ftc2025.Subsystem;
 
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -33,7 +30,7 @@ public class Drive {
         rightBack = hardwareMap.dcMotor.get("rightback");
 
         rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -45,7 +42,7 @@ public class Drive {
         leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        pinpoint = hardwareMap.get(pinpoint.getClass(), "pinpoint");
+        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class,"pinpoint");
     }
 
     public void setPower ( double LFPower, double RFPower, double LBPower, double RBPower){
@@ -66,15 +63,11 @@ public class Drive {
         setPower(v1, v2, v3, v4);
 
     }
-
-    public Pose2D getPose () {
-        robotPose = new Pose();
-        return pinpoint.getPosition();
+    public static Pose2D robotPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
+    public Pose2D getPose() {
+        robotPose = pinpoint.getPosition();
+        return robotPose;
     }
 
-    public void getRobotAngle () {
-        getPose().getHeading(AngleUnit.DEGREES);
-    }
 
-    public static Pose robotPose = new Pose();
 }

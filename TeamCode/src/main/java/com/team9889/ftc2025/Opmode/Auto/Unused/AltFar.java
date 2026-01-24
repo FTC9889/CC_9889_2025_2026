@@ -1,4 +1,4 @@
-package com.team9889.ftc2025.Opmode.Auto; // make sure this aligns with class location
+package com.team9889.ftc2025.Opmode.Auto.Unused; // make sure this aligns with class location
 
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -11,7 +11,7 @@ import com.team9889.ftc2025.Subsystem.Robot;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "FarAltTwRows", group = "FarAutos", preselectTeleOp = "Teleop")
+//@Autonomous(name = "FarAltTwRows", group = "FarAutos", preselectTeleOp = "Teleop")
 public class AltFar extends OpMode {
     Robot mRobot = new Robot();
 
@@ -31,37 +31,37 @@ public class AltFar extends OpMode {
     private PathChain Drive2ScorePos, LowIntake1, LowIntake2, LowReturn, HighIntake, HighReturn, Park;
 
     public void buildPaths() {
-        Drive2ScorePos = mRobot.mFollower.pathBuilder()
+        Drive2ScorePos = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
-        LowIntake1 = mRobot.mFollower.pathBuilder()
+        LowIntake1 = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(scorePose, LowIntake1Pose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
-        LowIntake2 = mRobot.mFollower.pathBuilder()
+        LowIntake2 = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(LowIntake1Pose, LowIntake2Pose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
-        LowReturn = mRobot.mFollower.pathBuilder()
+        LowReturn = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(LowIntake2Pose, scorePose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
-        HighIntake = mRobot.mFollower.pathBuilder()
+        HighIntake = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(scorePose, HighIntakePose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
-        HighReturn = mRobot.mFollower.pathBuilder()
+        HighReturn = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(HighIntakePose, scorePose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
-        Park = mRobot.mFollower.pathBuilder()
+        Park = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(scorePose, ParkPose))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
@@ -111,14 +111,15 @@ public class AltFar extends OpMode {
     public void loop() {
 
         // These loop the movements of the robot, these must be called continuously in order to work
-        mRobot.mFollower.update();
+//        mRobot.mDrive.update();
+        mRobot.update();
         autonomousPathUpdate();
 
         // Feedback to Driver Hub for debugging
         telemetry.addData("path state", pathState);
-        telemetry.addData("x", mRobot.mFollower.getPose().getX());
-        telemetry.addData("y", mRobot.mFollower.getPose().getY());
-        telemetry.addData("heading", mRobot.mFollower.getPose().getHeading());
+        telemetry.addData("x", mRobot.mDrive.getPose().getX());
+        telemetry.addData("y", mRobot.mDrive.getPose().getY());
+        telemetry.addData("heading", mRobot.mDrive.getPose().getHeading());
         telemetry.update();
     }
 
@@ -133,9 +134,9 @@ public class AltFar extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
-        mRobot.mFollower = Constants.createFollower(hardwareMap);
+        mRobot.mDrive = Constants.createFollower(hardwareMap);
         buildPaths();
-        mRobot.mFollower.setStartingPose(startPose);
+        mRobot.mDrive.setStartingPose(startPose);
 
     }
 
@@ -163,6 +164,6 @@ public class AltFar extends OpMode {
      **/
     @Override
     public void stop() {
-        Robot.robotPose = mRobot.mFollower.getPose();
+        Robot.robotPose = mRobot.mDrive.getPose();
     }
 }

@@ -2,6 +2,7 @@ package com.team9889.ftc2025.Subsystem;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -9,8 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Intake {
 
-    public DcMotor intake;
-    public CRServo TR, TL;
+    public DcMotorEx intakeR, intakeL;
     public Servo gate;
 
     public IntakeState CurrentIntakeState = IntakeState.NULL;
@@ -18,17 +18,9 @@ public class Intake {
     public IntakeState getCurrentIntakeState() {
         return CurrentIntakeState;
     }
+    public IntakeState getRequestedIntakeState() {return RequestedIntakeState;}
     public void setRequestedIntakeState(IntakeState requestedIntakeState) {
         RequestedIntakeState = requestedIntakeState;
-    }
-
-    public TransferState CurrentTransferState = TransferState.NULL;
-    public TransferState RequestedTransferState = TransferState.NULL;
-    public TransferState getCurrentTransferState() {
-        return CurrentTransferState;
-    }
-    public void setRequestedTransferState(TransferState requestedTransferState) {
-        RequestedTransferState = requestedTransferState;
     }
 
     public GateState CurrentGateState = GateState.NULL;
@@ -36,34 +28,33 @@ public class Intake {
     public GateState getCurrentGateState() {
         return CurrentGateState;
     }
+    public GateState getRequestedGateState() {return RequestedGateState;}
     public void setRequestedGateState(GateState requestedGateState) {
         RequestedGateState = requestedGateState;
     }
 
     public enum TopLevelState {
-        INTAKE(IntakeState.ON, TransferState.ON, GateState.CLOSED),
-        KEEP(IntakeState.SLOW, TransferState.OFF, GateState.CLOSED),
-        SHOOT(IntakeState.ON, TransferState.ON, GateState.OPEN),
-        FULL_OUTTAKE(IntakeState.OUTTAKE, TransferState.OUTTAKE, GateState.CLOSED),
-        OUTTAKE(IntakeState.OUTTAKE, TransferState.ON, GateState.CLOSED)
+        INTAKE(IntakeState.ON, GateState.CLOSED),
+        KEEP(IntakeState.SLOW, GateState.CLOSED),
+        SHOOT(IntakeState.ON, GateState.OPEN),
+        OUTTAKE(IntakeState.OUTTAKE, GateState.OPEN),
+        OFF(IntakeState.OFF, GateState.CLOSED),
         ;
 
         final IntakeState intakeState;
-        final TransferState transferState;
         final GateState gateState;
 
-        TopLevelState(IntakeState intakeState, TransferState transferState, GateState gateState) {
+        TopLevelState(IntakeState intakeState, GateState gateState) {
             this.intakeState = intakeState;
-            this.transferState = transferState;
             this.gateState = gateState;
         }
     }
 
     public enum IntakeState{
-        ON(-1),
+        ON(1),
         OFF(0),
-        SLOW(-0.15),
-        OUTTAKE(1),
+        SLOW(0.75),
+        OUTTAKE(-1),
         NULL(0);
 
         private final double value;
@@ -92,8 +83,8 @@ public class Intake {
         }
     }
     public enum GateState{
-        OPEN(1),
-        CLOSED(0),
+        OPEN(0.35),
+        CLOSED(0.23),
         NULL(0);
 
         private final double value;
@@ -153,36 +144,30 @@ public class Intake {
     public void init(HardwareMap hardwareMap) {
         gate = hardwareMap.servo.get("gate");
 
-        TL = hardwareMap.crservo.get("TL");
-        TR = hardwareMap.crservo.get("TR");
+        intakeR = hardwareMap.get(DcMotorEx.class, "intakeR");
+        intakeL = hardwareMap.get(DcMotorEx.class, "intakeL");
 
-        TR.setDirection(CRServo.Direction.REVERSE);
+        intakeR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        intake = hardwareMap.dcMotor.get("intake");
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeL.setDirection(DcMotorSimple.Direction.REVERSE);
+        intakeR.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
     double intakePower = 2;
-    public void setIntakePower(double power){
+    public void setIntakePower(double power) {
         if (intakePower != power) {
-            intake.setPower(power);
-        }
-        intakePower = power;
-        if(power == IntakeState.OFF.value) {
-            CurrentIntakeState = IntakeState.OFF;
+            intakeR.setPower(power);
+            intakeL.setPower(power);
+            intakePower = power;
         }
     }
+
+    public void setFrontIntakePower(double power) {
+        intakeR.setPower(power);
+    }
+
     double transferPower = 2;
-    public void setTransferPower(double power){
-        if (transferPower != power) {
-            TR.setPower(power);
-            TL.setPower(power);
-        }
-        transferPower = power;
-        if(power == TransferState.OFF.value) {
-            CurrentTransferState = TransferState.OFF;
-        }
-    }
     public void setGatePosition(double position) {
         gate.setPosition(position);
     }
@@ -190,38 +175,26 @@ public class Intake {
     ElapsedTime outtakeTimer = new ElapsedTime();
     public void update() {
 
-        //GatePosition
-        if (RequestedGateState != CurrentGateState) {
+        // Gate
+        if (RequestedGateState != GateState.NULL &&
+                RequestedGateState != CurrentGateState) {
             setGatePosition(RequestedGateState.value);
             CurrentGateState = RequestedGateState;
         }
-        //TransferPower
-        if (RequestedTransferState != CurrentTransferState) {
-            setTransferPower(RequestedTransferState.setTargetPower());
-            CurrentTransferState = RequestedTransferState;
-        }
-        //Intake Power
-        if (RequestedIntakeState == IntakeState.OUTTAKE && RequestedTransferState == TransferState.ON && RequestedGateState == GateState.CLOSED) {
-            outtakeTimer.reset();
-            if (outtakeTimer.milliseconds() != 300) {
-                setIntakePower(RequestedIntakeState.setTargetPower());
-                CurrentIntakeState = RequestedIntakeState;
-            } else {
-                setRequestedIntakeState(IntakeState.SLOW);
-                setRequestedTransferState(TransferState.OFF);
-            }
-        } else if (RequestedIntakeState != CurrentIntakeState){
-            setIntakePower(RequestedIntakeState.setTargetPower());
+
+        // Intake
+        if (RequestedIntakeState != IntakeState.NULL &&
+                RequestedIntakeState != CurrentIntakeState) {
+            setIntakePower(RequestedIntakeState.value);
             CurrentIntakeState = RequestedIntakeState;
         }
     }
 
     public boolean isComplete() {
-        return RequestedIntakeState == CurrentIntakeState && RequestedTransferState == CurrentTransferState;
+        return RequestedIntakeState == CurrentIntakeState && RequestedGateState == CurrentGateState;
     }
     public void requestState(TopLevelState state) {
         RequestedIntakeState = state.intakeState;
-        RequestedTransferState = state.transferState;
         RequestedGateState = state.gateState;
     }
 }

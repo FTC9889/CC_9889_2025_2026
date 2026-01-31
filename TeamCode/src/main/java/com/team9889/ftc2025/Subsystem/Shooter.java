@@ -4,9 +4,11 @@ package com.team9889.ftc2025.Subsystem;
 
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -15,11 +17,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 public class Shooter {
 
-//    public Limelight3A limelight;
-    public Servo hoodR, hoodL;
-//            turretR, turretL;
+    public Limelight3A limelight;
+    public Servo hoodR, hoodL,
+            turretR, turretL;
     public DcMotorEx shooterR, shooterL;
-    //    public AnalogInput sensor;
+        public AnalogInput sensor;
     double currentVoltage;
 
     public ShooterState CurrentShooterState = ShooterState.NULL;
@@ -37,20 +39,20 @@ public class Shooter {
         RequestedShooterState = shooterState;
     }
 
-//    public TurretState CurrentTurretState = TurretState.NULL;
-//    public TurretState RequestedTurretState = TurretState.NULL;
-//
-//    public TurretState getCurrentTurretState() {
-//        return CurrentTurretState;
-//    }
-//
-//    public TurretState getRequestedTurretState() {
-//        return RequestedTurretState;
-//    }
-//
-//    public void setRequestedTurretState(TurretState turretState) {
-//        RequestedTurretState = turretState;
-//    }
+    public TurretState CurrentTurretState = TurretState.NULL;
+    public TurretState RequestedTurretState = TurretState.NULL;
+
+    public TurretState getCurrentTurretState() {
+        return CurrentTurretState;
+    }
+
+    public TurretState getRequestedTurretState() {
+        return RequestedTurretState;
+    }
+
+    public void setRequestedTurretState(TurretState turretState) {
+        RequestedTurretState = turretState;
+    }
 
     public HoodState CurrentHoodState = HoodState.NULL;
     public HoodState RequestedHoodState = HoodState.NULL;
@@ -69,24 +71,24 @@ public class Shooter {
 
     public enum TopLevelState {
         READY_CLOSE(ShooterState.CLOSE,
-//                TurretState.TRAKING,
+                TurretState.TRAKING,
                 HoodState.SHOOT),
         READY_FAR(ShooterState.FAR,
-//                TurretState.TRAKING,
+                TurretState.TRAKING,
                 HoodState.SHOOT),
         DEFAULT(ShooterState.OFF,
-//                TurretState.TRAKING,
+                TurretState.TRAKING,
                 HoodState.DEFAULT);
 
         final ShooterState shooterState;
-//        final TurretState turretState;
+        final TurretState turretState;
         final HoodState hoodState;
 
         TopLevelState(ShooterState shooterState,
-//                      TurretState turretState,
+                      TurretState turretState,
                       HoodState hoodState) {
             this.shooterState = shooterState;
-//            this.turretState = turretState;
+            this.turretState = turretState;
             this.hoodState = hoodState;
         }
     }
@@ -155,7 +157,6 @@ public class Shooter {
 
     public enum HoodState {
         SHOOT(0.12),
-        //        FAR(0.15),
         DEFAULT(0.12),
         NULL(0);
 
@@ -173,8 +174,6 @@ public class Shooter {
             switch (this) {
                 case SHOOT:
                     return "SHOOT";
-//                case FAR:
-//                    return "FAR";
                 case DEFAULT:
                     return "DEFAULT";
                 case NULL:
@@ -184,9 +183,9 @@ public class Shooter {
         }
     }
 
-    //
+
     public void init(HardwareMap hardwareMap) {
-//        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
         shooterR = hardwareMap.get(DcMotorEx.class, "shooterR");
         shooterL = hardwareMap.get(DcMotorEx.class, "shooterL");
@@ -194,19 +193,19 @@ public class Shooter {
         hoodL = hardwareMap.servo.get("hoodL");
         hoodR = hardwareMap.servo.get("hoodR");
 
-//        turretR = hardwareMap.servo.get("turretR");
-//        turretL = hardwareMap.servo.get("turretL");
+        turretR = hardwareMap.servo.get("turretR");
+        turretL = hardwareMap.servo.get("turretL");
 
         hoodR.setDirection(Servo.Direction.REVERSE);
         hoodL.setDirection(Servo.Direction.FORWARD);
         shooterR.setDirection(DcMotorSimple.Direction.REVERSE);
         shooterL.setDirection(DcMotorSimple.Direction.FORWARD);
-//        turretR.setDirection(Servo.Direction.REVERSE);
+        turretR.setDirection(Servo.Direction.REVERSE);
 
-//        shooterR.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
-//        shooterL.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+////////////////////      shooterR.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients());
+////////////////////      shooterL.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients());
 
-//        sensor = hardwareMap.get(AnalogInput.class, "potentiometer");
+        sensor = hardwareMap.get(AnalogInput.class, "potentiometer");
     }
 
 
@@ -228,57 +227,58 @@ public class Shooter {
         hoodL.setPosition(position);
     }
 
-//    public void runT2Angle(double angle) {
-//        double position = Math.max(0, Math.min(1, angle / 360.0));
-//        turretR.setPosition(position);
-//        turretL.setPosition(position);
-//    }
+    public void runT2Angle(double angle) {
+        double position = Math.max(0, Math.min(1, angle / 360.0));
+        turretR.setPosition(position);
+        turretL.setPosition(position);
+    }
 
-//    public double getTurrentAngle() {
-//        return turretL.getPosition() / 360;
-//    }
+    public double getTurrentAngle() {
+        return turretL.getPosition() / 360;
+    }
 
-//    public void recallbrateRobotPose() {
-//        Drive.robotPose = new Pose2D(DistanceUnit.INCH, limelight.getLatestResult().getBotpose_MT2().getPosition().x, limelight.getLatestResult().getBotpose_MT2().getPosition().y, AngleUnit.DEGREES, limelight.getLatestResult().getBotpose_MT2().getOrientation().getYaw(AngleUnit.DEGREES));
-//    }
+    public void recallbrateRobotPose() {
+        Drive.robotPose = new Pose2D(
+                DistanceUnit.INCH,
+                limelight.getLatestResult().getBotpose_MT2().getPosition().x,
+                limelight.getLatestResult().getBotpose_MT2().getPosition().y,
+                AngleUnit.DEGREES,
+                limelight.getLatestResult().getBotpose_MT2().getOrientation().getYaw(AngleUnit.DEGREES)
+        );
+    }
 
     public double getShooterVelocity() {
         return shooterL.getVelocity();
     }
 
-    public double PoseXFromTarget = Drive.robotPose.getX(DistanceUnit.INCH);
-//    public double getTargetTrakingTurretAngle() {
-//
-//        if (!red) {
-//            PoseXFromTarget = Drive.robotPose.getX(DistanceUnit.INCH) + 8;
-//        } else if (red) {
-//            PoseXFromTarget = Drive.robotPose.getX(DistanceUnit.INCH) - 136;
-//        }
-//        double PoseYFromTarget = Drive.robotPose.getY(DistanceUnit.INCH) - 133;
-//
-//        double TargetAngle = 90 - Math.toDegrees(Math.atan2(PoseXFromTarget, PoseYFromTarget));
-//        double RobotAngle = Drive.robotPose.getHeading(AngleUnit.DEGREES);
-//        double TurretAngle = getTurrentAngle();
-//
-//        double TargetMovementAngle = -(RobotAngle + TargetAngle);
-//
-//        if (TargetMovementAngle > 180) {
-//            TargetMovementAngle -= 360;
-//        } else if (TargetMovementAngle < -180) {
-//            TargetMovementAngle += 360;
-//        }
-//
-//        double Turret2StartPos = 0 - TurretAngle;
-//        double TurretMovementAngle = Turret2StartPos + TargetMovementAngle;
-//        double RequestedAngle = getTurrentAngle() + TurretMovementAngle;
-//
-//        if (RequestedAngle > 360) {
-//            RequestedAngle -= 360;
-//        } else if (RequestedAngle < 360) {
-//            RequestedAngle += 360;
-//        }
-//        return RequestedAngle;
-//    }
+    public double poseXFromTarget = Drive.robotPose.getX(DistanceUnit.INCH);
+
+    public double getTargetTrakingTurretAngle() {
+
+        // Vector from robot -> target (field-centric)
+        double poseXFromTarget;
+        if (!red) {
+            poseXFromTarget = Math.abs(Drive.robotPose.getX(DistanceUnit.INCH) - 8);
+        } else {
+            poseXFromTarget = Math.abs(136 - Drive.robotPose.getX(DistanceUnit.INCH));
+        }
+
+        double poseYFromTarget = Math.abs(133 - Drive.robotPose.getY(DistanceUnit.INCH));
+
+        // Angle from robot to target (field-centric)
+        double targetAngle = Math.toDegrees(Math.atan2(poseYFromTarget, poseXFromTarget));
+
+        // Robot heading (field-centric)
+        double robotAngle = Drive.robotPose.getHeading(AngleUnit.DEGREES);
+
+        // Convert to robot-centric turret angle
+        double requestedAngle = targetAngle - robotAngle;
+
+        // Normalize to [0, 360)
+        requestedAngle = (requestedAngle % 360 + 360) % 360;
+
+        return requestedAngle;
+    }
 
     public static boolean red = false;
 
@@ -290,21 +290,18 @@ public class Shooter {
     public boolean robotYFar = Drive.robotPose.getY(DistanceUnit.INCH) < 48;
 
     public double getPredctedTurretAngle(boolean red) {
+        double requestedAngle;
+
         if (red) {
-            if (robotYFar) {
-                return farRedTurretAngle;
-            } else {
-                return closeRedTurretAngle;
-            }
-        } else if (!red) {
-            if (robotYFar) {
-                return farBlueTurretAngle;
-            } else {
-                return closeBlueTurretAngle;
-            }
+            requestedAngle = robotYFar ? farRedTurretAngle : closeRedTurretAngle;
         } else {
-            return 180;
+            requestedAngle = robotYFar ? farBlueTurretAngle : closeBlueTurretAngle;
         }
+
+        // Normalize to [0, 360)
+        requestedAngle = (requestedAngle % 360 + 360) % 360;
+
+        return requestedAngle;
     }
 
     //UPDATE
@@ -317,50 +314,36 @@ public class Shooter {
             CurrentShooterState = RequestedShooterState;
         }
 //        Turret State
-//      if (RequestedTurretState != CurrentTurretState) {
-//            if (RequestedTurretState == TurretState.TRAKING) {
-//                runT2Angle(getTargetTrakingTurretAngle());
-//                CurrentTurretState = RequestedTurretState;
-//                recallbrateRobotPose();
-//            } else if (RequestedTurretState == TurretState.PREDICT) {
-//                if (Drive.robotPose.getY(DistanceUnit.INCH) < 49) {
-//                    runT2Angle(getPredctedTurretAngle(red));
-//                }
-//                CurrentTurretState = RequestedTurretState;
-//            } else if (RequestedTurretState == TurretState.OFF) {
-//                runT2Angle(180);
-//                CurrentTurretState = RequestedTurretState;
-//            }
-//      }
+      if (RequestedTurretState != CurrentTurretState) {
+            if (RequestedTurretState == TurretState.TRAKING) {
+                runT2Angle(getTargetTrakingTurretAngle());
+                CurrentTurretState = RequestedTurretState;
+                recallbrateRobotPose();
+            } else if (RequestedTurretState == TurretState.PREDICT) {
+                if (Drive.robotPose.getY(DistanceUnit.INCH) < 49) {
+                    runT2Angle(getPredctedTurretAngle(red));
+                }
+                CurrentTurretState = RequestedTurretState;
+            } else if (RequestedTurretState == TurretState.OFF) {
+                runT2Angle(180);
+                CurrentTurretState = RequestedTurretState;
+            }
+      }
         //Hood State
         if (RequestedHoodState != CurrentHoodState) {
-            if (!red) {
-                PoseXFromTarget = Drive.robotPose.getX(DistanceUnit.INCH) + 8;
-            } else if (red) {
-                PoseXFromTarget = Drive.robotPose.getX(DistanceUnit.INCH) - 136;
-            }
-            double PoseYFromTarget = Drive.robotPose.getY(DistanceUnit.INCH) - 133;
-
-            double TargetAngle = 90 - Math.toDegrees(Math.atan2(PoseXFromTarget, PoseYFromTarget));
-            double RobotAngle = Drive.robotPose.getHeading(AngleUnit.DEGREES);
-            double DistanceAway = Math.hypot(PoseXFromTarget, PoseYFromTarget);
-
-
-            if (RequestedHoodState != CurrentHoodState) {
-                setHoodPosition(RequestedHoodState.value);
-                CurrentHoodState = RequestedHoodState;
-            }
+            setHoodPosition(RequestedHoodState.value);
+            CurrentHoodState = RequestedHoodState;
         }
     }
 
     public boolean isComplete() {
         return RequestedShooterState == CurrentShooterState &&
-//                RequestedTurretState == CurrentTurretState &&
+                RequestedTurretState == CurrentTurretState &&
                 RequestedHoodState == CurrentHoodState;
     }
     public void requestState(TopLevelState state) {
         RequestedShooterState = state.shooterState;
-//        RequestedTurretState = state.turretState;
+        RequestedTurretState = state.turretState;
         RequestedHoodState = state.hoodState;
     }
 }

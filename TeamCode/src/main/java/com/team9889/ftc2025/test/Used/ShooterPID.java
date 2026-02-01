@@ -2,14 +2,9 @@ package com.team9889.ftc2025.test.Used;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
-import com.team9889.ftc2025.Subsystem.Shooter;
+import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 @Config
 //@TeleOp
 //https://www.youtube.com/watch?v=aPNCpZzCTKg    7:00
@@ -28,15 +23,15 @@ public class ShooterPID extends OpMode {
 
     public void loop() {
         if (gamepad1.yWasPressed()) {
-            mRobot.mShooter.requestState(Shooter.TopLevelState.READY_FAR);
+            mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY_FAR);
         }
 
 //        if (gamepad1.yWasPressed()) {
-//            mRobot.mShooter.requestState(com.team9889.ftc2025.Subsystem.Shooter.TopLevelState.READY_FAR);
+//            mRobot.mShooter.requestState(com.team9889.ftc2025.Subsystem.Shooter.Shooter.TopLevelState.READY_FAR);
 //            mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
 //        } else if (gamepad1.xWasPressed()) {
 //            mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
-//            mRobot.mShooter.requestState(com.team9889.ftc2025.Subsystem.Shooter.TopLevelState.DEFAULT);
+//            mRobot.mShooter.requestState(com.team9889.ftc2025.Subsystem.Shooter.Shooter.TopLevelState.DEFAULT);
 //        }
 
 

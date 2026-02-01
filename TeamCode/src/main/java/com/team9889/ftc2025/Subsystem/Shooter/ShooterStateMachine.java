@@ -1,22 +1,20 @@
-package com.team9889.ftc2025.Subsystem;
+package com.team9889.ftc2025.Subsystem.Shooter;
 
 
 
-import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.team9889.ftc2025.Subsystem.Drive;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
-public class Shooter {
-
+public class ShooterStateMachine {
     public Limelight3A limelight;
     public Servo hoodR, hoodL,
             turretR, turretL;
@@ -222,6 +220,8 @@ public class Shooter {
         }
     }
 
+
+
     public void setHoodPosition(double position) {
         hoodR.setPosition(position);
         hoodL.setPosition(position);
@@ -248,7 +248,7 @@ public class Shooter {
     }
 
     public double getShooterVelocity() {
-        return shooterL.getVelocity();
+        return shooterL.getVelocity(AngleUnit.DEGREES);
     }
 
     public double poseXFromTarget = Drive.robotPose.getX(DistanceUnit.INCH);
@@ -318,7 +318,6 @@ public class Shooter {
             if (RequestedTurretState == TurretState.TRAKING) {
                 runT2Angle(getTargetTrakingTurretAngle());
                 CurrentTurretState = RequestedTurretState;
-                recallbrateRobotPose();
             } else if (RequestedTurretState == TurretState.PREDICT) {
                 if (Drive.robotPose.getY(DistanceUnit.INCH) < 49) {
                     runT2Angle(getPredctedTurretAngle(red));
@@ -333,6 +332,10 @@ public class Shooter {
         if (RequestedHoodState != CurrentHoodState) {
             setHoodPosition(RequestedHoodState.value);
             CurrentHoodState = RequestedHoodState;
+        }
+
+        if (limelight.getStatus() != null) {
+            recallbrateRobotPose();
         }
     }
 

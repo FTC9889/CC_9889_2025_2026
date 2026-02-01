@@ -1,12 +1,11 @@
 package com.team9889.ftc2025.Opmode.Teleop;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
-import com.team9889.ftc2025.Subsystem.Shooter;
+import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
 
 @TeleOp
@@ -61,12 +60,12 @@ public class Teleop extends OpMode {
 
         if (gamepad1.dpadUpWasPressed()) {
             shootPress = true;
-            mRobot.mShooter.requestState(Shooter.TopLevelState.READY_CLOSE);
+            mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY_CLOSE);
         } else if (gamepad1.dpadRightWasPressed()) {
-            mRobot.mShooter.requestState(Shooter.TopLevelState.READY_FAR);
+            mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY_FAR);
             shootPress = false;
         } else if (gamepad1.dpadDownWasPressed()) {
-            mRobot.mShooter.requestState(Shooter.TopLevelState.DEFAULT);
+            mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
             mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
             shootPress = false;
             altGate = false;

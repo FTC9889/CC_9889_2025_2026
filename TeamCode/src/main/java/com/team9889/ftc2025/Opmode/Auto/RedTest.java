@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
-import com.team9889.ftc2025.Subsystem.Shooter;
+import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
@@ -31,6 +31,7 @@ public class RedTest extends OpMode {
     public final Pose stackPose    = new Pose(126.5, 84.000);
     public final Pose curvePose1   = new Pose(83, 58.094);
     public final Pose curvePose2   = new Pose(135.5, 56);
+
 
     /* ---------------- PATH CHAINS ---------------- */
     public PathChain ShootPreload, IntakeOne, TurnOne, DriveBackOne, Path4_5, TurnToShoot, IntakeTwo, DriveToShootLast, Park;
@@ -94,7 +95,7 @@ public class RedTest extends OpMode {
                 break;
             case 11:
                 if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mShooter.requestState(Shooter.TopLevelState.READY_CLOSE);
+                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY_CLOSE);
                     if (shootTimer.milliseconds() > 3000 && !mRobot.mDrive.isBusy()) {
                         setPathState(12);
                         change = false;
@@ -130,7 +131,7 @@ public class RedTest extends OpMode {
             case 1:
                 if (!mRobot.mDrive.isBusy()) {
                     mRobot.mDrive.followPath(TurnOne, true);
-                    mRobot.mShooter.requestState(Shooter.TopLevelState.DEFAULT);
+                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
 //                    mRobot.mIntake.setFrontIntakePower(1);
                     mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
                     setPathState(2);
@@ -158,7 +159,7 @@ public class RedTest extends OpMode {
                 break;
             case 111:
                 if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mShooter.requestState(Shooter.TopLevelState.READY_CLOSE);
+                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY_CLOSE);
                     if (shootTimer.milliseconds() > 3000) {
                         setPathState(101);
                         change = false;
@@ -199,7 +200,7 @@ public class RedTest extends OpMode {
             case 32:
                 if (!mRobot.mDrive.isBusy()) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
-                    mRobot.mShooter.requestState(Shooter.TopLevelState.DEFAULT);
+                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
                     setPathState(333);
                 }
                 break;
@@ -224,7 +225,7 @@ public class RedTest extends OpMode {
                 break;
             case 51:
                 if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mShooter.requestState(Shooter.TopLevelState.READY_CLOSE);
+                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY_CLOSE);
                     if (shootTimer.milliseconds() > 3000) {
                         setPathState(52);
                         change = false;
@@ -263,7 +264,7 @@ public class RedTest extends OpMode {
             case 6:
                 if (!mRobot.mDrive.isBusy()) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
-                    mRobot.mShooter.requestState(Shooter.TopLevelState.DEFAULT);
+                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
                     setPathState(100);
                 }
                 break;

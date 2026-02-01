@@ -3,8 +3,8 @@ package com.team9889.ftc2025.Subsystem;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
@@ -14,7 +14,7 @@ public class Robot {
     public Drive mActualDrive = new Drive();
     public Follower mDrive;
     public Intake mIntake = new Intake();
-    public Shooter mShooter = new Shooter();
+    public ShooterStateMachine mShooter = new ShooterStateMachine();
 ////    public Spindexer mSD = new Spindexer();
 ///
     public static Pose robotPose = new Pose( 0, 0, Math.toRadians(0));

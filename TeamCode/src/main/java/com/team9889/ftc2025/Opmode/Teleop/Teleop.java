@@ -42,10 +42,8 @@ public class Teleop extends OpMode {
         );
 
 //        if (gamepad1.back && !centricPress) {
-//            robotC = true;
 //            centricPress = true;
 //        } else if (gamepad1.back && centricPress) {
-//            robotC = false;
 //            centricPress = false;
 //        }
 

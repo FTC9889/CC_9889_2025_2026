@@ -2,6 +2,8 @@ package com.team9889.ftc2025.Subsystem.Shooter;
 
 
 
+import com.pedropathing.math.MathFunctions;
+import com.pedropathing.math.Vector;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -348,5 +350,20 @@ public class ShooterStateMachine {
         RequestedShooterState = state.shooterState;
         RequestedTurretState = state.turretState;
         RequestedHoodState = state.hoodState;
+    }
+    public static Vector robotToGoal() {
+        double dx = 138 - Drive.robotPose.getX(DistanceUnit.INCH);
+        double dy = 138 - Drive.robotPose.getY(DistanceUnit.INCH);
+        return new Vector(dx, dy);
+    }
+
+
+    private Vector calculateShotVector(double robotHeading) {
+        double g = 32.174 * 12;
+        double x = robotToGoal().getMagnitude() - ShooterConstants.PASS_THROUGH_POINT_RADIUS;
+        double y = ShooterConstants.SCORE_HEIGHT;
+        double a = ShooterConstants.SCORE_ANGLE;
+
+        double hoodAngle = MathFunctions.clamp(Math.atan2(2 * y / x - Math.tan(a)), ShooterConstants.HOOD_MAX_ANGLE, ShooterConstants.HOOD_MIN_ANGLE)
     }
 }

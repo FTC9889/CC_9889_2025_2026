@@ -71,7 +71,6 @@ public class Robot {
 
     public void update() {
         mIntake.update();
-        mShooter.update();
         mDrive.update();
     }
 

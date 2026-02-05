@@ -3,6 +3,7 @@ package com.team9889.ftc2025.Opmode.Auto;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Vector;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -287,6 +288,11 @@ public class BlueTest extends OpMode {
         telemetry.addData("Y", mRobot.mDrive.getPose().getY());
         telemetry.addData("Heading", Math.toDegrees(mRobot.mDrive.getPose().getHeading()));
         telemetry.update();
+
+        // In your OpMode or main loop
+        Vector robotVelocity = mRobot.mDrive.getVelocity();
+        mRobot.mShooter.update(robotVelocity);
+
     }
 
     @Override
@@ -303,6 +309,7 @@ public class BlueTest extends OpMode {
         telemetry.update();
 
         mRobot.update();
+
     }
 
     @Override

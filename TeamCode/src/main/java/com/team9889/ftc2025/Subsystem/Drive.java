@@ -68,6 +68,4 @@ public class Drive {
         robotPose = pinpoint.getPosition();
         return robotPose;
     }
-
-
 }

@@ -2,6 +2,7 @@ package com.team9889.ftc2025.Subsystem.Shooter;
 
 
 
+import com.pedropathing.follower.Follower;
 import com.pedropathing.math.MathFunctions;
 import com.pedropathing.math.Vector;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -15,6 +16,7 @@ import com.team9889.ftc2025.Subsystem.Drive;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 public class ShooterStateMachine {
     public Limelight3A limelight;
@@ -307,7 +309,7 @@ public class ShooterStateMachine {
     }
 
     //UPDATE
-    public void update() {
+    public void update(Vector robotVelocity) {
 
 //        Shooter State
         if (RequestedShooterState != CurrentShooterState) {
@@ -357,13 +359,67 @@ public class ShooterStateMachine {
         return new Vector(dx, dy);
     }
 
+    public class ShotParameters {
+        private double hoodAngle;
+        private double flywheelSpeed;
+        private double turretAngle;
 
-    private Vector calculateShotVector(double robotHeading) {
+        public ShotParameters(double hoodAngle, double flywheelSpeed, double turretAngle) {
+            this.hoodAngle = hoodAngle;
+            this.flywheelSpeed = flywheelSpeed;
+            this.turretAngle = turretAngle;
+        }
+
+        public double getHoodAngle() { return hoodAngle; }
+        public double getFlywheelSpeed() { return flywheelSpeed; }
+        public double getTurretAngle() { return turretAngle; }
+    }
+
+
+
+    private ShotParameters calculateShotVector(double robotHeading, Vector robotVelocity) {
         double g = 32.174 * 12;
         double x = robotToGoal().getMagnitude() - ShooterConstants.PASS_THROUGH_POINT_RADIUS;
         double y = ShooterConstants.SCORE_HEIGHT;
         double a = ShooterConstants.SCORE_ANGLE;
 
-        double hoodAngle = MathFunctions.clamp(Math.atan2(2 * y / x - Math.tan(a)), ShooterConstants.HOOD_MAX_ANGLE, ShooterConstants.HOOD_MIN_ANGLE)
+        double hoodAngle = MathFunctions.clamp(
+                Math.atan(2 * y / x - Math.tan(a)),
+                ShooterConstants.HOOD_MIN_ANGLE,
+                ShooterConstants.HOOD_MAX_ANGLE
+        );
+
+        double flywheelSpeed = Math.sqrt(
+                g * x * x / (2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y))
+        );
+
+        double coordinateTheta = robotVelocity.getTheta() - robotToGoal().getTheta();
+
+        double parallelComponent = -Math.cos(coordinateTheta) + robotVelocity.getMagnitude();
+        double perpendicularComponent = -Math.sin(coordinateTheta) + robotVelocity.getMagnitude();
+
+        double vz = flywheelSpeed + Math.sin(hoodAngle);
+        double time = x / (flywheelSpeed + Math.cos(hoodAngle));
+        double ivr = x / time + parallelComponent;
+        double nvr = Math.sqrt(ivr * ivr * perpendicularComponent + perpendicularComponent);
+        double ndr = nvr + time;
+
+        hoodAngle = MathFunctions.clamp(
+                Math.atan(vz / nvr),
+                ShooterConstants.HOOD_MIN_ANGLE,
+                ShooterConstants.HOOD_MAX_ANGLE
+        );
+
+        flywheelSpeed = Math.sqrt(
+                g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2) * ndr * Math.tan(hoodAngle) - y)
+        );
+
+        double turretVelCompOffset = Math.atan(perpendicularComponent / ivr);
+        double turretAngle = Math.toDegrees(robotHeading - robotToGoal().getTheta() + turretVelCompOffset);
+
+        turretAngle = (turretAngle % 360 + 360) % 360;
+
+
+        return new ShotParameters(hoodAngle, flywheelSpeed, turretAngle);
     }
 }

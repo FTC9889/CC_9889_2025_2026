@@ -257,56 +257,56 @@ public class ShooterStateMachine {
 
     public double poseXFromTarget = Drive.robotPose.getX(DistanceUnit.INCH);
 
-    public double getTargetTrakingTurretAngle() {
+//    public double getTargetTrakingTurretAngle() {
+//
+//        // Vector from robot -> target (field-centric)
+//        double poseXFromTarget;
+//        if (!red) {
+//            poseXFromTarget = Math.abs(Drive.robotPose.getX(DistanceUnit.INCH) - 8);
+//        } else {
+//            poseXFromTarget = Math.abs(136 - Drive.robotPose.getX(DistanceUnit.INCH));
+//        }
+//
+//        double poseYFromTarget = Math.abs(133 - Drive.robotPose.getY(DistanceUnit.INCH));
+//
+//        // Angle from robot to target (field-centric)
+//        double targetAngle = Math.toDegrees(Math.atan2(poseYFromTarget, poseXFromTarget));
+//
+//        // Robot heading (field-centric)
+//        double robotAngle = Drive.robotPose.getHeading(AngleUnit.DEGREES);
+//
+//        // Convert to robot-centric turret angle
+//        double requestedAngle = targetAngle - robotAngle;
+//
+//        // Normalize to [0, 360)
+//        requestedAngle = (requestedAngle % 360 + 360) % 360;
+//
+//        return requestedAngle;
+//    }
 
-        // Vector from robot -> target (field-centric)
-        double poseXFromTarget;
-        if (!red) {
-            poseXFromTarget = Math.abs(Drive.robotPose.getX(DistanceUnit.INCH) - 8);
-        } else {
-            poseXFromTarget = Math.abs(136 - Drive.robotPose.getX(DistanceUnit.INCH));
-        }
-
-        double poseYFromTarget = Math.abs(133 - Drive.robotPose.getY(DistanceUnit.INCH));
-
-        // Angle from robot to target (field-centric)
-        double targetAngle = Math.toDegrees(Math.atan2(poseYFromTarget, poseXFromTarget));
-
-        // Robot heading (field-centric)
-        double robotAngle = Drive.robotPose.getHeading(AngleUnit.DEGREES);
-
-        // Convert to robot-centric turret angle
-        double requestedAngle = targetAngle - robotAngle;
-
-        // Normalize to [0, 360)
-        requestedAngle = (requestedAngle % 360 + 360) % 360;
-
-        return requestedAngle;
-    }
-
-    public static boolean red = false;
-
-    public double farRedTurretAngle = 67;
-    public double farBlueTurretAngle = 103;
-    public double closeRedTurretAngle = 45;
-    public double closeBlueTurretAngle = 135;
-
-    public boolean robotYFar = Drive.robotPose.getY(DistanceUnit.INCH) < 48;
-
-    public double getPredctedTurretAngle(boolean red) {
-        double requestedAngle;
-
-        if (red) {
-            requestedAngle = robotYFar ? farRedTurretAngle : closeRedTurretAngle;
-        } else {
-            requestedAngle = robotYFar ? farBlueTurretAngle : closeBlueTurretAngle;
-        }
-
-        // Normalize to [0, 360)
-        requestedAngle = (requestedAngle % 360 + 360) % 360;
-
-        return requestedAngle;
-    }
+//    public static boolean red = false;
+//
+//    public double farRedTurretAngle = 67;
+//    public double farBlueTurretAngle = 103;
+//    public double closeRedTurretAngle = 45;
+//    public double closeBlueTurretAngle = 135;
+//
+//    public boolean robotYFar = Drive.robotPose.getY(DistanceUnit.INCH) < 48;
+//
+//    public double getPredctedTurretAngle(boolean red) {
+//        double requestedAngle;
+//
+//        if (red) {
+//            requestedAngle = robotYFar ? farRedTurretAngle : closeRedTurretAngle;
+//        } else {
+//            requestedAngle = robotYFar ? farBlueTurretAngle : closeBlueTurretAngle;
+//        }
+//
+//        // Normalize to [0, 360)
+//        requestedAngle = (requestedAngle % 360 + 360) % 360;
+//
+//        return requestedAngle;
+//    }
 
     //UPDATE
     public void update(Vector robotVelocity) {
@@ -320,12 +320,11 @@ public class ShooterStateMachine {
 //        Turret State
       if (RequestedTurretState != CurrentTurretState) {
             if (RequestedTurretState == TurretState.TRAKING) {
-                runT2Angle(getTargetTrakingTurretAngle());
+
+
                 CurrentTurretState = RequestedTurretState;
             } else if (RequestedTurretState == TurretState.PREDICT) {
-                if (Drive.robotPose.getY(DistanceUnit.INCH) < 49) {
-                    runT2Angle(getPredctedTurretAngle(red));
-                }
+
                 CurrentTurretState = RequestedTurretState;
             } else if (RequestedTurretState == TurretState.OFF) {
                 runT2Angle(180);

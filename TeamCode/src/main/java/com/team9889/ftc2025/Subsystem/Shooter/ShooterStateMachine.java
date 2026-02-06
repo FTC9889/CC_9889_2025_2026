@@ -308,23 +308,22 @@ public class ShooterStateMachine {
 //        return requestedAngle;
 //    }
 
+
+
     //UPDATE
     public void update(Vector robotVelocity) {
 
 //        Shooter State
         if (RequestedShooterState != CurrentShooterState) {
-            shooterL.setVelocity(RequestedShooterState.setTargetVelocity());
-            shooterR.setVelocity(RequestedShooterState.setTargetVelocity());
+            shooterL.setVelocity(calculateShotVector(Drive.robotPose.getHeading(AngleUnit.DEGREES), robotVelocity).flywheelSpeed);
+            shooterR.setVelocity(calculateShotVector(Drive.robotPose.getHeading(AngleUnit.DEGREES), robotVelocity).flywheelSpeed);
+            //check video prolly function to convert speed into ticks pre second
             CurrentShooterState = RequestedShooterState;
         }
 //        Turret State
       if (RequestedTurretState != CurrentTurretState) {
             if (RequestedTurretState == TurretState.TRAKING) {
-
-
-                CurrentTurretState = RequestedTurretState;
-            } else if (RequestedTurretState == TurretState.PREDICT) {
-
+                runT2Angle(calculateShotVector(Drive.robotPose.getHeading(AngleUnit.DEGREES), robotVelocity).turretAngle);
                 CurrentTurretState = RequestedTurretState;
             } else if (RequestedTurretState == TurretState.OFF) {
                 runT2Angle(180);
@@ -333,7 +332,8 @@ public class ShooterStateMachine {
       }
         //Hood State
         if (RequestedHoodState != CurrentHoodState) {
-            setHoodPosition(RequestedHoodState.value);
+            setHoodPosition(calculateShotVector(Drive.robotPose.getHeading(AngleUnit.DEGREES), robotVelocity).hoodAngle);
+            //prolly conversion functions as well
             CurrentHoodState = RequestedHoodState;
         }
 

@@ -257,56 +257,56 @@ public class ShooterStateMachine {
 
     public double poseXFromTarget = Drive.robotPose.getX(DistanceUnit.INCH);
 
-    public double getTargetTrakingTurretAngle() {
+//    public double getTargetTrakingTurretAngle() {
+//
+//        // Vector from robot -> target (field-centric)
+//        double poseXFromTarget;
+//        if (!red) {
+//            poseXFromTarget = Math.abs(Drive.robotPose.getX(DistanceUnit.INCH) - 8);
+//        } else {
+//            poseXFromTarget = Math.abs(136 - Drive.robotPose.getX(DistanceUnit.INCH));
+//        }
+//
+//        double poseYFromTarget = Math.abs(133 - Drive.robotPose.getY(DistanceUnit.INCH));
+//
+//        // Angle from robot to target (field-centric)
+//        double targetAngle = Math.toDegrees(Math.atan2(poseYFromTarget, poseXFromTarget));
+//
+//        // Robot heading (field-centric)
+//        double robotAngle = Drive.robotPose.getHeading(AngleUnit.DEGREES);
+//
+//        // Convert to robot-centric turret angle
+//        double requestedAngle = targetAngle - robotAngle;
+//
+//        // Normalize to [0, 360)
+//        requestedAngle = (requestedAngle % 360 + 360) % 360;
+//
+//        return requestedAngle;
+//    }
+//
+//    public static boolean red = false;
+//
+//    public double farRedTurretAngle = 67;
+//    public double farBlueTurretAngle = 103;
+//    public double closeRedTurretAngle = 45;
+//    public double closeBlueTurretAngle = 135;
 
-        // Vector from robot -> target (field-centric)
-        double poseXFromTarget;
-        if (!red) {
-            poseXFromTarget = Math.abs(Drive.robotPose.getX(DistanceUnit.INCH) - 8);
-        } else {
-            poseXFromTarget = Math.abs(136 - Drive.robotPose.getX(DistanceUnit.INCH));
-        }
+//    public boolean robotYFar = Drive.robotPose.getY(DistanceUnit.INCH) < 48;
 
-        double poseYFromTarget = Math.abs(133 - Drive.robotPose.getY(DistanceUnit.INCH));
-
-        // Angle from robot to target (field-centric)
-        double targetAngle = Math.toDegrees(Math.atan2(poseYFromTarget, poseXFromTarget));
-
-        // Robot heading (field-centric)
-        double robotAngle = Drive.robotPose.getHeading(AngleUnit.DEGREES);
-
-        // Convert to robot-centric turret angle
-        double requestedAngle = targetAngle - robotAngle;
-
-        // Normalize to [0, 360)
-        requestedAngle = (requestedAngle % 360 + 360) % 360;
-
-        return requestedAngle;
-    }
-
-    public static boolean red = false;
-
-    public double farRedTurretAngle = 67;
-    public double farBlueTurretAngle = 103;
-    public double closeRedTurretAngle = 45;
-    public double closeBlueTurretAngle = 135;
-
-    public boolean robotYFar = Drive.robotPose.getY(DistanceUnit.INCH) < 48;
-
-    public double getPredctedTurretAngle(boolean red) {
-        double requestedAngle;
-
-        if (red) {
-            requestedAngle = robotYFar ? farRedTurretAngle : closeRedTurretAngle;
-        } else {
-            requestedAngle = robotYFar ? farBlueTurretAngle : closeBlueTurretAngle;
-        }
-
-        // Normalize to [0, 360)
-        requestedAngle = (requestedAngle % 360 + 360) % 360;
-
-        return requestedAngle;
-    }
+//    public double getPredctedTurretAngle(boolean red) {
+//        double requestedAngle;
+//
+//        if (red) {
+//            requestedAngle = robotYFar ? farRedTurretAngle : closeRedTurretAngle;
+//        } else {
+//            requestedAngle = robotYFar ? farBlueTurretAngle : closeBlueTurretAngle;
+//        }
+//
+//        // Normalize to [0, 360)
+//        requestedAngle = (requestedAngle % 360 + 360) % 360;
+//
+//        return requestedAngle;
+//    }
 
 
 
@@ -315,15 +315,15 @@ public class ShooterStateMachine {
 
 //        Shooter State
         if (RequestedShooterState != CurrentShooterState) {
-            shooterL.setVelocity(RequestedShooterState.setTargetVelocity());
-            shooterR.setVelocity(RequestedShooterState.setTargetVelocity());
+            shooterL.setVelocity(calculateShotVector(Drive.robotPose.getHeading(AngleUnit.DEGREES), robotVelocity).flywheelSpeed);
+            shooterR.setVelocity(calculateShotVector(Drive.robotPose.getHeading(AngleUnit.DEGREES), robotVelocity).flywheelSpeed);
             //check video prolly function to convert speed into ticks pre second
             CurrentShooterState = RequestedShooterState;
         }
 //        Turret State
       if (RequestedTurretState != CurrentTurretState) {
             if (RequestedTurretState == TurretState.TRAKING) {
-                runT2Angle(getTargetTrakingTurretAngle());
+                runT2Angle(calculateShotVector(Drive.robotPose.getHeading(AngleUnit.DEGREES), robotVelocity).turretAngle);
                 CurrentTurretState = RequestedTurretState;
             } else if (RequestedTurretState == TurretState.OFF) {
                 runT2Angle(180);
@@ -332,7 +332,7 @@ public class ShooterStateMachine {
       }
         //Hood State
         if (RequestedHoodState != CurrentHoodState) {
-            setHoodPosition(RequestedHoodState.setTargetPower());
+            setHoodPosition(calculateShotVector(Drive.robotPose.getHeading(AngleUnit.DEGREES), robotVelocity).hoodAngle);
             //prolly conversion functions as well
             CurrentHoodState = RequestedHoodState;
         }
@@ -351,5 +351,75 @@ public class ShooterStateMachine {
         RequestedShooterState = state.shooterState;
         RequestedTurretState = state.turretState;
         RequestedHoodState = state.hoodState;
+    }
+
+    public static Vector robotToGoal() {
+        double dx = 138 - Drive.robotPose.getX(DistanceUnit.INCH);
+        double dy = 138 - Drive.robotPose.getY(DistanceUnit.INCH);
+        return new Vector(dx, dy);
+    }
+
+    public class ShotParameters {
+        private double hoodAngle;
+        private double flywheelSpeed;
+        private double turretAngle;
+
+        public ShotParameters(double hoodAngle, double flywheelSpeed, double turretAngle) {
+            this.hoodAngle = hoodAngle;
+            this.flywheelSpeed = flywheelSpeed;
+            this.turretAngle = turretAngle;
+        }
+
+        public double getHoodAngle() { return hoodAngle; }
+        public double getFlywheelSpeed() { return flywheelSpeed; }
+        public double getTurretAngle() { return turretAngle; }
+    }
+
+
+
+    private ShotParameters calculateShotVector(double robotHeading, Vector robotVelocity) {
+        double g = 32.174 * 12;
+        double x = robotToGoal().getMagnitude() - ShooterConstants.PASS_THROUGH_POINT_RADIUS;
+        double y = ShooterConstants.SCORE_HEIGHT;
+        double a = ShooterConstants.SCORE_ANGLE;
+
+        double hoodAngle = MathFunctions.clamp(
+                Math.atan(2 * y / x - Math.tan(a)),
+                ShooterConstants.HOOD_MIN_ANGLE,
+                ShooterConstants.HOOD_MAX_ANGLE
+        );
+
+        double flywheelSpeed = Math.sqrt(
+                g * x * x / (2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y))
+        );
+
+        double coordinateTheta = robotVelocity.getTheta() - robotToGoal().getTheta();
+
+        double parallelComponent = -Math.cos(coordinateTheta) + robotVelocity.getMagnitude();
+        double perpendicularComponent = -Math.sin(coordinateTheta) + robotVelocity.getMagnitude();
+
+        double vz = flywheelSpeed + Math.sin(hoodAngle);
+        double time = x / (flywheelSpeed + Math.cos(hoodAngle));
+        double ivr = x / time + parallelComponent;
+        double nvr = Math.sqrt(ivr * ivr * perpendicularComponent + perpendicularComponent);
+        double ndr = nvr + time;
+
+        hoodAngle = MathFunctions.clamp(
+                Math.atan(vz / nvr),
+                ShooterConstants.HOOD_MIN_ANGLE,
+                ShooterConstants.HOOD_MAX_ANGLE
+        );
+
+        flywheelSpeed = Math.sqrt(
+                g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2) * ndr * Math.tan(hoodAngle) - y)
+        );
+
+        double turretVelCompOffset = Math.atan(perpendicularComponent / ivr);
+        double turretAngle = Math.toDegrees(robotHeading - robotToGoal().getTheta() + turretVelCompOffset);
+
+        turretAngle = (turretAngle % 360 + 360) % 360;
+
+
+        return new ShotParameters(hoodAngle, flywheelSpeed, turretAngle);
     }
 }

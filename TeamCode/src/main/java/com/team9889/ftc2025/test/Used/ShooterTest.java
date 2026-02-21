@@ -21,7 +21,7 @@ public class ShooterTest extends OpMode {
 
         mRobot.mShooter.setShooterVelocity(shooterVelocity);
         mRobot.mShooter.setHoodPosition(hoodPosition);
-        mRobot.mShooter.setHoodPosition(turrentPosition);
+        mRobot.mShooter.runT2Angle(turrentPosition);
 
         if (gamepad1.aWasPressed()) {
             mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);

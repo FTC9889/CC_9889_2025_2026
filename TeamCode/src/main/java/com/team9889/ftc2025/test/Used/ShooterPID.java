@@ -14,6 +14,10 @@ public class ShooterPID extends OpMode {
     public static double F = 0;
     public static double P = 0;
 
+    public static double shooterVelocity = 0;
+    public static double turrentPosition = 0.1;
+    public static double hoodPosition = 0.12;
+
     @Override
     public void init() {
         mRobot.init(hardwareMap);
@@ -22,17 +26,21 @@ public class ShooterPID extends OpMode {
     }
 
     public void loop() {
+        mRobot.mShooter.setShooterVelocity(shooterVelocity);
+        mRobot.mShooter.setHoodPosition(hoodPosition);
+        mRobot.mShooter.(turrentPosition);
+
         if (gamepad1.yWasPressed()) {
             mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY_FAR);
         }
 
-//        if (gamepad1.yWasPressed()) {
-//            mRobot.mShooter.requestState(com.team9889.ftc2025.Subsystem.Shooter.Shooter.TopLevelState.READY_FAR);
-//            mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
-//        } else if (gamepad1.xWasPressed()) {
-//            mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
-//            mRobot.mShooter.requestState(com.team9889.ftc2025.Subsystem.Shooter.Shooter.TopLevelState.DEFAULT);
-//        }
+        if (gamepad1.yWasPressed()) {
+            mRobot.mShooter.requestState(com.team9889.ftc2025.Subsystem.Shooter.Shooter.TopLevelState.READY_FAR);
+            mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
+        } else if (gamepad1.xWasPressed()) {
+            mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
+            mRobot.mShooter.requestState(com.team9889.ftc2025.Subsystem.Shooter.Shooter.TopLevelState.DEFAULT);
+        }
 
 
         PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);

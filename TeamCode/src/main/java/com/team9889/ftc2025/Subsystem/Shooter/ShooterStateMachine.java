@@ -19,11 +19,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 public class ShooterStateMachine {
-    public Limelight3A limelight;
+//    public Limelight3A limelight;
     public Servo hoodR, hoodL,
             turretR, turretL;
     public DcMotorEx shooterR, shooterL;
-        public AnalogInput sensor;
+//        public AnalogInput sensor;
     double currentVoltage;
 
     public ShooterState CurrentShooterState = ShooterState.NULL;
@@ -187,7 +187,7 @@ public class ShooterStateMachine {
 
 
     public void init(HardwareMap hardwareMap) {
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+//        limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
         shooterR = hardwareMap.get(DcMotorEx.class, "shooterR");
         shooterL = hardwareMap.get(DcMotorEx.class, "shooterL");
@@ -202,12 +202,11 @@ public class ShooterStateMachine {
         hoodL.setDirection(Servo.Direction.FORWARD);
         shooterR.setDirection(DcMotorSimple.Direction.REVERSE);
         shooterL.setDirection(DcMotorSimple.Direction.FORWARD);
-        turretR.setDirection(Servo.Direction.REVERSE);
 
 ////////////////////      shooterR.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients());
 ////////////////////      shooterL.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients());
 
-        sensor = hardwareMap.get(AnalogInput.class, "potentiometer");
+//        sensor = hardwareMap.get(AnalogInput.class, "potentiometer");
     }
 
 
@@ -232,24 +231,24 @@ public class ShooterStateMachine {
     }
 
     public void runT2Angle(double angle) {
-        double position = Math.max(0, Math.min(1, angle / 360.0));
+        double position = (angle / 360) ;
         turretR.setPosition(position);
         turretL.setPosition(position);
     }
 
     public double getTurrentAngle() {
-        return turretL.getPosition() / 360;
+        return turretL.getPosition() * 355;
     }
 
-    public void recallbrateRobotPose() {
-        Drive.robotPose = new Pose2D(
-                DistanceUnit.INCH,
-                limelight.getLatestResult().getBotpose_MT2().getPosition().x,
-                limelight.getLatestResult().getBotpose_MT2().getPosition().y,
-                AngleUnit.DEGREES,
-                limelight.getLatestResult().getBotpose_MT2().getOrientation().getYaw(AngleUnit.DEGREES)
-        );
-    }
+//    public void recallbrateRobotPose() {
+//        Drive.robotPose = new Pose2D(
+//                DistanceUnit.INCH,
+//                limelight.getLatestResult().getBotpose_MT2().getPosition().x,
+//                limelight.getLatestResult().getBotpose_MT2().getPosition().y,
+//                AngleUnit.DEGREES,
+//                limelight.getLatestResult().getBotpose_MT2().getOrientation().getYaw(AngleUnit.DEGREES)
+//        );
+//    }
 
     public double getShooterVelocity() {
         return shooterL.getVelocity(AngleUnit.DEGREES);
@@ -323,10 +322,10 @@ public class ShooterStateMachine {
 //        Turret State
       if (RequestedTurretState != CurrentTurretState) {
             if (RequestedTurretState == TurretState.TRAKING) {
-                runT2Angle(calculateShotVector(Drive.robotPose.getHeading(AngleUnit.DEGREES), robotVelocity).turretAngle);
+//                runT2Angle(calculateShotVector(Drive.robotPose.getHeading(AngleUnit.DEGREES), robotVelocity).turretAngle);
                 CurrentTurretState = RequestedTurretState;
             } else if (RequestedTurretState == TurretState.OFF) {
-                runT2Angle(180);
+//                runT2Angle(180);
                 CurrentTurretState = RequestedTurretState;
             }
       }
@@ -337,9 +336,9 @@ public class ShooterStateMachine {
             CurrentHoodState = RequestedHoodState;
         }
 
-        if (limelight.getStatus() != null) {
-            recallbrateRobotPose();
-        }
+//        if (limelight.getStatus() != null) {
+//            recallbrateRobotPose();
+//        }
     }
 
     public boolean isComplete() {
@@ -356,6 +355,7 @@ public class ShooterStateMachine {
     public static Vector robotToGoal() {
         double dx = 138 - Drive.robotPose.getX(DistanceUnit.INCH);
         double dy = 138 - Drive.robotPose.getY(DistanceUnit.INCH);
+        double magnitude = Math.sqrt(dx * dx + dy * dy);
         return new Vector(dx, dy);
     }
 

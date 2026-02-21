@@ -2,15 +2,16 @@ package com.team9889.ftc2025.test.Used;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
 @Config
-//@TeleOp
+@TeleOp
 public class ShooterTest extends OpMode {
     Robot mRobot = new Robot();
     public static double shooterVelocity = 0;
-    public static double turrentPosition = 0.1;
-    public static double hoodPosition = 0.12;
+    public static double turentAngle = 0;
+    public static double hoodPosition = 0;
     @Override
     public void init() {
         mRobot.init(hardwareMap);
@@ -21,19 +22,23 @@ public class ShooterTest extends OpMode {
 
         mRobot.mShooter.setShooterVelocity(shooterVelocity);
         mRobot.mShooter.setHoodPosition(hoodPosition);
-        mRobot.mShooter.setHoodPosition(turrentPosition);
+        mRobot.mShooter.runT2Angle(turentAngle);
 
         if (gamepad1.aWasPressed()) {
-            mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
+            mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
         } else if (gamepad1.bWasPressed()) {
             mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
         } else if (gamepad1.yWasPressed()) {
             mRobot.mIntake.requestState(Intake.TopLevelState.OUTTAKE);
+        } else if (gamepad1.xWasPressed()) {
+            mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
         }
+
 
         telemetry.addLine("press A to turn intake to shoot mode");
         telemetry.addLine("press B to turn intake off");
         telemetry.addLine("press Y to turn intake to outtake");
+        telemetry.addData("angularRate", mRobot.mShooter.shooterR.getVelocity());
         telemetry.update();
 
         mRobot.update();

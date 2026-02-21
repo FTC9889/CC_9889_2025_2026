@@ -83,8 +83,8 @@ public class Intake {
         }
     }
     public enum GateState{
-        OPEN(0.35),
-        CLOSED(0.23),
+        OPEN(0.7),
+        CLOSED(0.55),
         NULL(0);
 
         private final double value;

@@ -63,7 +63,10 @@ public class Drive {
         setPower(v1, v2, v3, v4);
 
     }
-    public static Pose2D robotPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
+    public static double xOffset = 0;
+    public static double yOffset = 0;
+
+    public static Pose2D robotPose = new Pose2D(DistanceUnit.INCH, 0 - xOffset, 0 - yOffset, AngleUnit.DEGREES, 0);
     public Pose2D getPose() {
         robotPose = pinpoint.getPosition();
         return robotPose;

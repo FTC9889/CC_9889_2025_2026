@@ -14,7 +14,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 //@Autonomous(name = "FarAltTwRows", group = "FarAutos", preselectTeleOp = "Teleop")
 public class AltFar extends OpMode {
     Robot mRobot = new Robot();
-
     private Timer pathTimer, actionTimer, opmodeTimer;
 
     private int pathState;

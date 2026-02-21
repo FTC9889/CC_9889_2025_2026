@@ -2,11 +2,12 @@ package com.team9889.ftc2025.Subsystem.Shooter;
 
 
 
-import com.pedropathing.follower.Follower;
+import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.math.MathFunctions;
 import com.pedropathing.math.Vector;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -16,15 +17,14 @@ import com.team9889.ftc2025.Subsystem.Drive;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 public class ShooterStateMachine {
-    public Limelight3A limelight;
+//    public Limelight3A limelight;
     public Servo hoodR, hoodL,
             turretR, turretL;
     public DcMotorEx shooterR, shooterL;
-        public AnalogInput sensor;
-    double currentVoltage;
+//        public AnalogInput sensor;
+//    double currentVoltage;
 
     public ShooterState CurrentShooterState = ShooterState.NULL;
     public ShooterState RequestedShooterState = ShooterState.NULL;
@@ -72,12 +72,9 @@ public class ShooterStateMachine {
     }
 
     public enum TopLevelState {
-        READY_CLOSE(ShooterState.CLOSE,
+        READY(ShooterState.READY,
                 TurretState.TRAKING,
-                HoodState.SHOOT),
-        READY_FAR(ShooterState.FAR,
-                TurretState.TRAKING,
-                HoodState.SHOOT),
+                HoodState.READY),
         DEFAULT(ShooterState.OFF,
                 TurretState.TRAKING,
                 HoodState.DEFAULT);
@@ -96,9 +93,8 @@ public class ShooterStateMachine {
     }
 
     public enum ShooterState {
-        FAR(1600),
+        READY(0),
         OFF(0),
-        CLOSE(1250),
         NULL(0);
 
         private final double value;
@@ -113,12 +109,10 @@ public class ShooterStateMachine {
 
         public String toString() {
             switch (this) {
-                case FAR:
-                    return "FAR";
+                case READY:
+                    return "READY";
                 case OFF:
                     return "OFF";
-                case CLOSE:
-                    return "CLOSE";
                 case NULL:
                 default:
                     return "NULL";
@@ -127,9 +121,8 @@ public class ShooterStateMachine {
     }
 
     public enum TurretState {
-        TRAKING(-1),
+        TRAKING(0),
         OFF(0),
-        PREDICT(0),
         NULL(0);
 
         private final double value;
@@ -148,8 +141,6 @@ public class ShooterStateMachine {
                     return "ON";
                 case OFF:
                     return "OFF";
-                case PREDICT:
-                    return "PREDICT";
                 case NULL:
                 default:
                     return "NULL";
@@ -158,7 +149,7 @@ public class ShooterStateMachine {
     }
 
     public enum HoodState {
-        SHOOT(0.12),
+        READY(0.12),
         DEFAULT(0.12),
         NULL(0);
 
@@ -174,8 +165,8 @@ public class ShooterStateMachine {
 
         public String toString() {
             switch (this) {
-                case SHOOT:
-                    return "SHOOT";
+                case READY:
+                    return "READY";
                 case DEFAULT:
                     return "DEFAULT";
                 case NULL:
@@ -187,7 +178,7 @@ public class ShooterStateMachine {
 
 
     public void init(HardwareMap hardwareMap) {
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+//        limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
         shooterR = hardwareMap.get(DcMotorEx.class, "shooterR");
         shooterL = hardwareMap.get(DcMotorEx.class, "shooterL");
@@ -202,12 +193,14 @@ public class ShooterStateMachine {
         hoodL.setDirection(Servo.Direction.FORWARD);
         shooterR.setDirection(DcMotorSimple.Direction.REVERSE);
         shooterL.setDirection(DcMotorSimple.Direction.FORWARD);
-        turretR.setDirection(Servo.Direction.REVERSE);
 
-////////////////////      shooterR.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients());
-////////////////////      shooterL.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients());
+        shooterL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        shooterR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        sensor = hardwareMap.get(AnalogInput.class, "potentiometer");
+        shooterR.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        shooterL.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+
+//        sensor = hardwareMap.get(AnalogInput.class, "potentiometer");
     }
 
 
@@ -232,7 +225,19 @@ public class ShooterStateMachine {
     }
 
     public void runT2Angle(double angle) {
-        double position = Math.max(0, Math.min(1, angle / 360.0));
+        // 90  = 0;
+        // 180 = 0.5;
+        // 270 = 1;
+        double position;
+
+        if(angle >= 270) {
+            position = 1;
+        } else if (angle <= 82) {
+            position = 0;
+        } else {
+            position = (angle - 90) / 172;
+        }
+
         turretR.setPosition(position);
         turretL.setPosition(position);
     }
@@ -241,15 +246,15 @@ public class ShooterStateMachine {
         return turretL.getPosition() / 360;
     }
 
-    public void recallbrateRobotPose() {
-        Drive.robotPose = new Pose2D(
-                DistanceUnit.INCH,
-                limelight.getLatestResult().getBotpose_MT2().getPosition().x,
-                limelight.getLatestResult().getBotpose_MT2().getPosition().y,
-                AngleUnit.DEGREES,
-                limelight.getLatestResult().getBotpose_MT2().getOrientation().getYaw(AngleUnit.DEGREES)
-        );
-    }
+//    public void recallbrateRobotPose() {
+//        Drive.robotPose = new Pose2D(
+//                DistanceUnit.INCH,
+//                limelight.getLatestResult().getBotpose_MT2().getPosition().x,
+//                limelight.getLatestResult().getBotpose_MT2().getPosition().y,
+//                AngleUnit.DEGREES,
+//                limelight.getLatestResult().getBotpose_MT2().getOrientation().getYaw(AngleUnit.DEGREES)
+//        );
+//    }
 
     public double getShooterVelocity() {
         return shooterL.getVelocity(AngleUnit.DEGREES);
@@ -257,17 +262,39 @@ public class ShooterStateMachine {
 
     public double poseXFromTarget = Drive.robotPose.getX(DistanceUnit.INCH);
 
-    public double getTargetTrakingTurretAngle() {
+    public class ShotParameters {
+        private double hoodPosition;
+        private double flywheelSpeed;
+        private double turretAngle;
 
-        // Vector from robot -> target (field-centric)
-        double poseXFromTarget;
-        if (!red) {
-            poseXFromTarget = Math.abs(Drive.robotPose.getX(DistanceUnit.INCH) - 8);
-        } else {
-            poseXFromTarget = Math.abs(136 - Drive.robotPose.getX(DistanceUnit.INCH));
+        public ShotParameters(double hoodAngle, double flywheelSpeed, double turretAngle) {
+            this.hoodPosition = hoodAngle;
+            this.flywheelSpeed = flywheelSpeed;
+            this.turretAngle = turretAngle;
         }
 
-        double poseYFromTarget = Math.abs(133 - Drive.robotPose.getY(DistanceUnit.INCH));
+        public double getHoodAngle() { return hoodPosition; }
+        public double getFlywheelSpeed() { return flywheelSpeed; }
+        public double getTurretAngle() { return turretAngle; }
+    }
+
+    public ShotParameters shootingParameters() {
+        double poseXFromTarget;
+        if (!red) {
+            poseXFromTarget = Math.abs(Drive.robotPose.getX(DistanceUnit.INCH) - 7.5);
+        } else {
+            poseXFromTarget = Math.abs(136.5 - Drive.robotPose.getX(DistanceUnit.INCH));
+        }
+
+        double poseYFromTarget = Math.abs(136.5 - Drive.robotPose.getY(DistanceUnit.INCH));
+
+        double distanceFromGoal = Math.hypot(poseXFromTarget, poseYFromTarget);
+
+        double hoodAngle = 0;
+        double shooterVelocity = 0;
+        /// Turret
+        // Vector from robot -> target (field-centric)
+
 
         // Angle from robot to target (field-centric)
         double targetAngle = Math.toDegrees(Math.atan2(poseYFromTarget, poseXFromTarget));
@@ -280,9 +307,20 @@ public class ShooterStateMachine {
 
         // Normalize to [0, 360)
         requestedAngle = (requestedAngle % 360 + 360) % 360;
+        requestedAngle = MathFunctions.clamp(requestedAngle, 90, 270);
 
-        return requestedAngle;
+        /// Hood
+
+        hoodAngle = -((0.000000172398) * distanceFromGoal * distanceFromGoal * distanceFromGoal) + (0.0000422278 * distanceFromGoal * distanceFromGoal) - (0.00381218 * distanceFromGoal) + 0.173328;
+
+        /// Shooter
+
+        shooterVelocity = (0.0173883 * distanceFromGoal * distanceFromGoal) + (4.04479 * distanceFromGoal) + 1099.94273;
+
+        return new ShotParameters(hoodAngle, shooterVelocity, requestedAngle);
     }
+
+
 
     public static boolean red = false;
 
@@ -315,14 +353,15 @@ public class ShooterStateMachine {
 
 //        Shooter State
         if (RequestedShooterState != CurrentShooterState) {
-            shooterL.setVelocity();
-            shooterR.setVelocity();
+//            shooterL.setVelocity();
+//            shooterR.setVelocity();
             //check video prolly function to convert speed into ticks pre second
             CurrentShooterState = RequestedShooterState;
         }
 //        Turret State
       if (RequestedTurretState != CurrentTurretState) {
             if (RequestedTurretState == TurretState.TRAKING) {
+                runT2Angle(shootingParameters().turretAngle);
                 //turret stuff
                 CurrentTurretState = RequestedTurretState;
             } else if (RequestedTurretState == TurretState.OFF) {
@@ -336,9 +375,9 @@ public class ShooterStateMachine {
             CurrentHoodState = RequestedHoodState;
         }
 
-        if (limelight.getStatus() != null) {
-            recallbrateRobotPose();
-        }
+//        if (limelight.getStatus() != null) {
+//            recallbrateRobotPose();
+//        }
     }
 
     public boolean isComplete() {

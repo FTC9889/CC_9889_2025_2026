@@ -3,6 +3,7 @@ package com.team9889.ftc2025.Opmode.Teleop;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.team9889.ftc2025.Subsystem.Drive;
 import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
 import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
@@ -13,14 +14,16 @@ public class Teleop extends OpMode {
     Robot mRobot = new Robot();
 
     boolean altGate = false;
-    boolean change = false;
     boolean shootPress = false;
+    boolean press = false;
     boolean robotC = false;
     boolean centricPress = false;
 
+    boolean red = false;
+
 
     ElapsedTime shoot = new ElapsedTime();
-    ElapsedTime shootEait = new ElapsedTime();
+    ElapsedTime shootWait = new ElapsedTime();
 
     @Override
     public void init() {
@@ -34,6 +37,19 @@ public class Teleop extends OpMode {
 
     @Override
     public void loop() {
+
+        if (gamepad2.backWasPressed() && gamepad2.bWasPressed()) {
+            red = true;
+        } else if (gamepad2.backWasPressed() && gamepad2.xWasPressed()) {
+            red = false;
+        }
+
+        if (gamepad2.right_stick_button && gamepad2.left_stick_button) {
+            Drive.xOffset = mRobot.mDrive.getPose().getX() - 7.5;
+            Drive.yOffset = mRobot.mDrive.getPose().getY() - 8.25;
+        }
+
+
         mRobot.mDrive.setTeleOpDrive(
                 -gamepad1.left_stick_y,
                 -gamepad1.left_stick_x,
@@ -48,58 +64,28 @@ public class Teleop extends OpMode {
 //        }
 
 
-        if (gamepad1.aWasPressed()) {
+        if (gamepad1.leftBumperWasPressed() && !press) {
             mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
-        } else if (gamepad1.bWasPressed()) {
+            press = true;
+        } else if (gamepad1.leftBumperWasPressed()&& press) {
             mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
-        } else if (gamepad1.yWasPressed()) {
+            press = false;
+        } else if (gamepad2.yWasPressed()) {
             mRobot.mIntake.requestState(Intake.TopLevelState.OUTTAKE);
         }
 
-        if (gamepad1.dpadUpWasPressed()) {
+        if (gamepad2.rightBumperWasPressed() && !shootPress) {
+            mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY);
             shootPress = true;
-            mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY_CLOSE);
-        } else if (gamepad1.dpadRightWasPressed()) {
-            mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY_FAR);
-            shootPress = false;
-        } else if (gamepad1.dpadDownWasPressed()) {
+        } else if (gamepad1.dpadDownWasPressed() && shootPress) {
             mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
-            mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
+            mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
             shootPress = false;
-            altGate = false;
         }
 
         if (gamepad1.right_bumper) {
             mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
-            altGate = true;
-            change = true;
         }
-
-        if (altGate) {
-            if (shoot.milliseconds() > 300 && !change) {
-                mRobot.mIntake.RequestedGateState = Intake.GateState.CLOSED;
-                change = true;
-                shoot.reset();
-            }
-            if (mRobot.mShooter.getShooterVelocity() >= (mRobot.mShooter.getRequestedShooterState().setTargetVelocity() -50)) {
-                mRobot.mIntake.RequestedGateState = Intake.GateState.OPEN;
-                change = false;
-                shoot.reset();
-            }
-        }
-
-
-//        if (gamepad1.aWasPressed()) {
-//            mRobot.mIntake.setRequestedIntakeState(Intake.IntakeState.ON);
-//        } else if (gamepad1.bWasPressed()) {
-//            mRobot.mIntake.setRequestedIntakeState(Intake.IntakeState.OFF);
-//        } else if (gamepad1.yWasPressed()) {
-//            mRobot.mIntake.requestState(Intake.TopLevelState.OUTTAKE);
-//        }
-
-
-
-
 
 
         telemetry.addData("IntakeRequestedState", mRobot.mIntake.getRequestedIntakeState());

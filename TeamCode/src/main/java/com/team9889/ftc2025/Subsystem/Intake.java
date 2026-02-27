@@ -99,41 +99,9 @@ public class Intake {
         public String toString() {
             switch (this) {
                 case OPEN:
-                    return "ON";
+                    return "OPEN";
                 case CLOSED:
-                    return "OFF";
-                case NULL:
-                default:
-                    return "NULL";
-            }
-        }
-    }
-    public enum TransferState{
-        ON(-1),
-        OFF(0),
-        SLOW(-0.15),
-        OUTTAKE(1),
-        NULL(0);
-
-        private final double value;
-        TransferState(double value) {
-            this.value = value;
-        }
-
-        public double setTargetPower() {
-            return value;
-        }
-
-        public String toString() {
-            switch (this) {
-                case ON:
-                    return "ON";
-                case OFF:
-                    return "OFF";
-                case SLOW:
-                    return "SLOW";
-                case OUTTAKE:
-                    return "OUTTAKE";
+                    return "CLOSED";
                 case NULL:
                 default:
                     return "NULL";
@@ -147,8 +115,8 @@ public class Intake {
         intakeR = hardwareMap.get(DcMotorEx.class, "intakeR");
         intakeL = hardwareMap.get(DcMotorEx.class, "intakeL");
 
-        intakeR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intakeL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        intakeL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         intakeL.setDirection(DcMotorSimple.Direction.REVERSE);
         intakeR.setDirection(DcMotorSimple.Direction.FORWARD);

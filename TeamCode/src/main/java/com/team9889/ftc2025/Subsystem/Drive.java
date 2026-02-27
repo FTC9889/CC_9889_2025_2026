@@ -20,7 +20,7 @@ public class Drive {
     //
     public void init(HardwareMap hardwareMap) {
         imu = hardwareMap.get(IMU.class, "imu");
-        RevHubOrientationOnRobot revHubOrientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.DOWN);
+        RevHubOrientationOnRobot revHubOrientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD);
         imu.initialize(new IMU.Parameters(revHubOrientationOnRobot));
 //
         leftFront = hardwareMap.dcMotor.get("leftfront");
@@ -67,8 +67,10 @@ public class Drive {
     public static double yOffset = 0;
 
     public static Pose2D robotPose = new Pose2D(DistanceUnit.INCH, 0 - xOffset, 0 - yOffset, AngleUnit.DEGREES, 0);
-    public Pose2D getPose() {
+    public  Pose2D getPose() {
         robotPose = pinpoint.getPosition();
         return robotPose;
     }
+
+    public  static boolean red = false;
 }

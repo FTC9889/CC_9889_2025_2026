@@ -5,7 +5,10 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 public class Robot {
@@ -63,14 +66,25 @@ public class Robot {
 
 
     public double DistaceFromTarget() {
-        double PoseXFromTarget = mActualDrive.getPose().getX(DistanceUnit.INCH) - 134;
-        double PoseYFromTarget = mActualDrive.getPose().getY(DistanceUnit.INCH) - 133;
+        double PoseXFromTarget;
 
-        return Math.hypot(PoseXFromTarget, PoseYFromTarget);
+        if (Drive.red) {
+            PoseXFromTarget = 127 - robotPose.getX();
+        } else {
+            PoseXFromTarget = robotPose.getX() - 14.5;
+        }
+
+        double PoseYFromTarget = 129.5 - mActualDrive.getPose().getY(DistanceUnit.INCH);
+
+        return Math.hypot(PoseXFromTarget, PoseYFromTarget) - 8.5;
     }
 
     public void update() {
         mIntake.update();
+        mShooter.update(
+                new Pose(mDrive.getPose().getX(), mDrive.getPose().getY(), mDrive.getPose().getHeading()),
+                DistaceFromTarget()
+        );
         mDrive.update();
     }
 

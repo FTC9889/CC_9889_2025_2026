@@ -1,5 +1,6 @@
 package com.team9889.ftc2025.Subsystem;
 
+import com.pedropathing.math.MathFunctions;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -140,8 +141,21 @@ public class Intake {
         gate.setPosition(position);
     }
 
+
+
+    public static double intakePower(double goalDistance) {
+        double intakePow = 0;
+        if (goalDistance > 119) {
+            intakePow = 0.9;
+        } else {
+            intakePow = 1;
+        }
+        return MathFunctions.clamp(intakePow, 0, 1
+        );
+    }
+
     ElapsedTime outtakeTimer = new ElapsedTime();
-    public void update() {
+    public void update(double goalDistance) {
 
         // Gate
         if (RequestedGateState != GateState.NULL &&
@@ -153,8 +167,18 @@ public class Intake {
         // Intake
         if (RequestedIntakeState != IntakeState.NULL &&
                 RequestedIntakeState != CurrentIntakeState) {
-            setIntakePower(RequestedIntakeState.value);
-            CurrentIntakeState = RequestedIntakeState;
+            if (RequestedIntakeState != IntakeState.ON && RequestedGateState != GateState.OPEN) {
+                setIntakePower(RequestedIntakeState.value);
+                CurrentIntakeState = RequestedIntakeState;
+            } else if (RequestedIntakeState == IntakeState.ON && RequestedGateState == GateState.OPEN) {
+                setIntakePower(intakePower(goalDistance));
+                setGatePosition(GateState.OPEN.value);
+            }
+        }
+
+        if (RequestedIntakeState == IntakeState.ON && RequestedGateState == GateState.OPEN) {
+            setIntakePower(intakePower(goalDistance));
+            setGatePosition(GateState.OPEN.value);
         }
     }
 

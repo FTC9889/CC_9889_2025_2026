@@ -54,7 +54,11 @@ public class Teleop extends OpMode {
         }
 
         if (gamepad2.right_stick_button && gamepad2.left_stick_button) {
-            Drive.xOffset = mRobot.mDrive.getPose().getX() - 7.5;
+            if (!Drive.red) {
+                Drive.xOffset = mRobot.mDrive.getPose().getX() - 7.5;
+            } else {
+                Drive.xOffset = mRobot.mDrive.getPose().getX() - 136.5;
+            }
             Drive.yOffset = mRobot.mDrive.getPose().getY() - 8.25;
         }
 

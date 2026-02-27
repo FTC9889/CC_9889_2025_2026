@@ -69,18 +69,18 @@ public class Robot {
         double PoseXFromTarget;
 
         if (Drive.red) {
-            PoseXFromTarget = 127 - robotPose.getX();
+            PoseXFromTarget = 129.5 - robotPose.getX();
         } else {
             PoseXFromTarget = robotPose.getX() - 14.5;
         }
 
-        double PoseYFromTarget = 129.5 - mActualDrive.getPose().getY(DistanceUnit.INCH);
+        double PoseYFromTarget = 132 - mActualDrive.getPose().getY(DistanceUnit.INCH);
 
-        return Math.hypot(PoseXFromTarget, PoseYFromTarget) - 8.5;
+        return Math.hypot(PoseXFromTarget, PoseYFromTarget) - 5;
     }
 
     public void update() {
-        mIntake.update();
+        mIntake.update(DistaceFromTarget());
         mShooter.update(
                 new Pose(mDrive.getPose().getX(), mDrive.getPose().getY(), mDrive.getPose().getHeading()),
                 DistaceFromTarget()

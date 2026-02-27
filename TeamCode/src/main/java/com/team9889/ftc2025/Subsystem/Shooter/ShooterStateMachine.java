@@ -193,8 +193,8 @@ public class ShooterStateMachine {
         shooterL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooterR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        shooterR.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(16, 0, 0, 35));
-        shooterL.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(16, 0, 0, 35));
+        shooterR.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(50, 0, 0, 15));
+        shooterL.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(50, 0, 0, 15));
 
 //        sensor = hardwareMap.get(AnalogInput.class, "potentiometer");
     }
@@ -271,18 +271,20 @@ public class ShooterStateMachine {
 
     public static double hoodAngle(double goalDistance) {
         return MathFunctions.clamp(
-                -(0.000000172398) * Math.pow(goalDistance, 3)
-                + (0.0000422278) * Math.pow(goalDistance, 2)
-                - (0.00381218) * goalDistance
-                + 0.173328, 0, 1900
+                (0.000000000870861 * Math.pow(goalDistance, 4))
+                        - (0.000000436878 * Math.pow(goalDistance, 3))
+                        + (0.000070371 * Math.pow(goalDistance, 2))
+                        - (0.00498223 * goalDistance)
+                        + 0.186651, 0, 1900
         );
     }
 
     public static double shooterVelocity(double goalDistance) {
         return MathFunctions.clamp(
-                (0.0173883) * Math.pow(goalDistance, 2)
-                + (4.04479) * goalDistance
-                + 1099.94273, 0.02, 0.75
+                (-0.000115264 * Math.pow(goalDistance, 3))
+                        + (0.0415589 * Math.pow(goalDistance, 2))
+                        + 2.83322 * goalDistance
+                        + 1137.17211, 0.02, 0.75
         );
     }
 

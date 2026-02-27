@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.RobotLog;
 
 public class Intake {
 
@@ -38,7 +39,7 @@ public class Intake {
         INTAKE(IntakeState.ON, GateState.CLOSED),
         KEEP(IntakeState.SLOW, GateState.CLOSED),
         SHOOT(IntakeState.ON, GateState.OPEN),
-        OUTTAKE(IntakeState.OUTTAKE, GateState.OPEN),
+        OUTTAKE(IntakeState.OUTTAKE, GateState.CLOSED),
         OFF(IntakeState.OFF, GateState.CLOSED),
         ;
 
@@ -167,12 +168,13 @@ public class Intake {
         // Intake
         if (RequestedIntakeState != IntakeState.NULL &&
                 RequestedIntakeState != CurrentIntakeState) {
-            if (RequestedIntakeState != IntakeState.ON && RequestedGateState != GateState.OPEN) {
+            if (RequestedGateState != GateState.OPEN) {
                 setIntakePower(RequestedIntakeState.value);
                 CurrentIntakeState = RequestedIntakeState;
             } else if (RequestedIntakeState == IntakeState.ON && RequestedGateState == GateState.OPEN) {
                 setIntakePower(intakePower(goalDistance));
                 setGatePosition(GateState.OPEN.value);
+                RobotLog.a("DFT", goalDistance);
             }
         }
 

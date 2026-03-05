@@ -30,13 +30,19 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package com.team9889.ftc2025.test.Used;
 
+import static com.team9889.ftc2025.Subsystem.Robot.robotPose;
+
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.canvas.Canvas;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -67,19 +73,59 @@ import java.util.List;
  *   below the name of the Limelight on the top level configuration screen.
  */
 @TeleOp(name = "Sensor: Limelight3A", group = "Sensor")
-@Disabled
+@Config
+//@Disabled
 public class SensorLimelight3A extends LinearOpMode {
 
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+
+
     private Limelight3A limelight;
+
+    public void drawLimelightPose(double limelightXm, double limelightYm, double headingRad) {
+
+        double limelightX = limelightXm * 39.37;
+        double limelightY = limelightYm * 39.37;
+
+        double limelightHeading = Math.toRadians(headingRad);
+
+        TelemetryPacket packet = new TelemetryPacket();
+        Canvas c = packet.fieldOverlay();
+
+        // Draw robot body (18in diameter assumed)
+        c.setStroke("lime")
+                .setStrokeWidth(2)
+                .strokeCircle(limelightX, limelightY, 9);
+
+        // Draw heading line
+        double lineLength = 9;
+        double x2 = limelightX + lineLength * Math.cos(limelightHeading);
+        double y2 = limelightY + lineLength * Math.sin(limelightHeading);
+
+        c.strokeLine(limelightX, limelightY, x2, y2);
+
+        // Optional label
+        c.fillText("Limelight",
+                limelightX + 3,
+                limelightY + 3,
+                "10px Arial",
+                0,
+                false);
+
+        dashboard.sendTelemetryPacket(packet);
+    }
 
     @Override
     public void runOpMode() throws InterruptedException
     {
+
+
+
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
         telemetry.setMsTransmissionInterval(11);
 
-        limelight.pipelineSwitch(0);
+        limelight.pipelineSwitch(1);
 
         /*
          * Starts polling for data.  If you neglect to call start(), getLatestResult() will return null.
@@ -103,49 +149,35 @@ public class SensorLimelight3A extends LinearOpMode {
             if (result.isValid()) {
                 // Access general information
                 Pose3D botpose = result.getBotpose();
+                Pose3D botPoseMT_2 = result.getBotpose_MT2();
                 double captureLatency = result.getCaptureLatency();
                 double targetingLatency = result.getTargetingLatency();
                 double parseLatency = result.getParseLatency();
-                telemetry.addData("LL Latency", captureLatency + targetingLatency);
-                telemetry.addData("Parse Latency", parseLatency);
-                telemetry.addData("PythonOutput", java.util.Arrays.toString(result.getPythonOutput()));
+                double botYaw;
+                double botYaw2;
+
+                drawLimelightPose(botpose.getPosition().x, botpose.getPosition().y, botpose.getOrientation().getYaw());
 
                 telemetry.addData("tx", result.getTx());
                 telemetry.addData("txnc", result.getTxNC());
                 telemetry.addData("ty", result.getTy());
                 telemetry.addData("tync", result.getTyNC());
 
-                telemetry.addData("Botpose", botpose.toString());
+                double x = 144 - ((-botpose.getPosition().y * 39.37) + 72);
+                double y = (-botpose.getPosition().x * 39.37) + 72;
+                double heading = botpose.getOrientation().getYaw() + 90;
 
-                // Access barcode results
-                List<LLResultTypes.BarcodeResult> barcodeResults = result.getBarcodeResults();
-                for (LLResultTypes.BarcodeResult br : barcodeResults) {
-                    telemetry.addData("Barcode", "Data: %s", br.getData());
-                }
 
-                // Access classifier results
-                List<LLResultTypes.ClassifierResult> classifierResults = result.getClassifierResults();
-                for (LLResultTypes.ClassifierResult cr : classifierResults) {
-                    telemetry.addData("Classifier", "Class: %s, Confidence: %.2f", cr.getClassName(), cr.getConfidence());
-                }
+                telemetry.addData("x", String.valueOf(x));
+                telemetry.addData("y", String.valueOf(y));
+                telemetry.addData("yaw", String.valueOf(heading));
 
-                // Access detector results
-                List<LLResultTypes.DetectorResult> detectorResults = result.getDetectorResults();
-                for (LLResultTypes.DetectorResult dr : detectorResults) {
-                    telemetry.addData("Detector", "Class: %s, Area: %.2f", dr.getClassName(), dr.getTargetArea());
-                }
+                telemetry.addData("Rx", String.valueOf(botpose.getPosition().x));
+                telemetry.addData("Ry", String.valueOf(botpose.getPosition().y));
+                telemetry.addData("Ryaw", String.valueOf(heading));
 
-                // Access fiducial results
-                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-                for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                    telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
-                }
 
-                // Access color results
-                List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
-                for (LLResultTypes.ColorResult cr : colorResults) {
-                    telemetry.addData("Color", "X: %.2f, Y: %.2f", cr.getTargetXDegrees(), cr.getTargetYDegrees());
-                }
+
             } else {
                 telemetry.addData("Limelight", "No data available");
             }

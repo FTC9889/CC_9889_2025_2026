@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 public class Drive {
     DcMotor leftFront, leftBack, rightFront, rightBack;
@@ -22,6 +23,8 @@ public class Drive {
         imu = hardwareMap.get(IMU.class, "imu");
         RevHubOrientationOnRobot revHubOrientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD);
         imu.initialize(new IMU.Parameters(revHubOrientationOnRobot));
+
+        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
 //
         leftFront = hardwareMap.dcMotor.get("leftfront");
         leftBack = hardwareMap.dcMotor.get("leftback");
@@ -65,8 +68,9 @@ public class Drive {
     }
     public static double xOffset = 0;
     public static double yOffset = 0;
+    public static double yawOffset = 0;
 
-    public static Pose2D robotPose = new Pose2D(DistanceUnit.INCH, 0 - xOffset, 0 - yOffset, AngleUnit.DEGREES, 0);
+    public static Pose2D robotPose = new Pose2D(DistanceUnit.INCH, 0 - xOffset, 0 - yOffset, AngleUnit.DEGREES, 0 - yawOffset);
     public  Pose2D getPose() {
         robotPose = pinpoint.getPosition();
         return robotPose;

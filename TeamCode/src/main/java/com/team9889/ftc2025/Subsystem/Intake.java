@@ -139,6 +139,7 @@ public class Intake {
 
     double transferPower = 2;
     public void setGatePosition(double position) {
+        position = MathFunctions.clamp(position, 0.55, 0.7);
         gate.setPosition(position);
     }
 
@@ -146,24 +147,22 @@ public class Intake {
 
     public static double intakePower(double goalDistance) {
         double intakePow = 0;
-        if (goalDistance > 119) {
-            intakePow = 0.9;
+        if (goalDistance > 105) {
+            intakePow = 0.75;
         } else {
             intakePow = 1;
         }
-        return MathFunctions.clamp(intakePow, 0, 1
-        );
+        return MathFunctions.clamp(intakePow, 0, 1);
     }
 
     ElapsedTime outtakeTimer = new ElapsedTime();
     public void update(double goalDistance) {
 
         // Gate
-        if (RequestedGateState != GateState.NULL &&
-                RequestedGateState != CurrentGateState) {
-            setGatePosition(RequestedGateState.value);
-            CurrentGateState = RequestedGateState;
-        }
+
+        setGatePosition(RequestedGateState.value);
+        CurrentGateState = RequestedGateState;
+
 
         // Intake
         if (RequestedIntakeState != IntakeState.NULL &&
@@ -175,13 +174,18 @@ public class Intake {
                 setIntakePower(intakePower(goalDistance));
                 setGatePosition(GateState.OPEN.value);
                 RobotLog.a("DFT", goalDistance);
+                CurrentIntakeState = RequestedIntakeState;
+                CurrentGateState = RequestedGateState;
             }
         }
 
         if (RequestedIntakeState == IntakeState.ON && RequestedGateState == GateState.OPEN) {
             setIntakePower(intakePower(goalDistance));
             setGatePosition(GateState.OPEN.value);
+            CurrentIntakeState = RequestedIntakeState;
+            CurrentGateState = RequestedGateState;
         }
+
     }
 
     public boolean isComplete() {

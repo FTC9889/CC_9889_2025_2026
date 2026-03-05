@@ -1,22 +1,21 @@
 package com.team9889.ftc2025.Subsystem.Shooter;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.MathFunctions;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.RobotLog;
 import com.team9889.ftc2025.Subsystem.Drive;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 public class ShooterStateMachine {
-//    public Limelight3A limelight;
+    public Limelight3A limelight;
     public Servo hoodR, hoodL,
             turretR, turretL;
     public DcMotorEx shooterR, shooterL;
@@ -72,6 +71,12 @@ public class ShooterStateMachine {
         READY(ShooterState.READY,
                 TurretState.TRACKING,
                 HoodState.READY),
+        AUTOR1(ShooterState.AUTO1, TurretState.AUTOR1, HoodState.AUTO1),
+        AUTOR2(ShooterState.AUTO2, TurretState.AUTOR2, HoodState.AUTO2),
+        AUTOB1(ShooterState.AUTO1, TurretState.AUTOB1, HoodState.AUTO1),
+        AUTOB2(ShooterState.AUTO2, TurretState.AUTOB2, HoodState.AUTO2),
+        AUTORF(ShooterState.AUTOF, TurretState.AUTORF, HoodState.AUTOF),
+        AUTOBF(ShooterState.AUTOF, TurretState.AUTOBF, HoodState.AUTOF),
         DEFAULT(ShooterState.OFF,
                 TurretState.TRACKING,
                 HoodState.DEFAULT);
@@ -92,6 +97,9 @@ public class ShooterStateMachine {
     public enum ShooterState {
         READY(0),
         OFF(0),
+        AUTO1(1300),
+        AUTO2(1550),
+        AUTOF(1900),
         NULL(0);
 
         private final double value;
@@ -110,6 +118,12 @@ public class ShooterStateMachine {
                     return "READY";
                 case OFF:
                     return "OFF";
+                case AUTO1:
+                    return "AUTO1";
+                case AUTO2:
+                    return "AUTO2";
+                case AUTOF:
+                    return "AUTOF";
                 case NULL:
                 default:
                     return "NULL";
@@ -120,6 +134,12 @@ public class ShooterStateMachine {
     public enum TurretState {
         TRACKING(0),
         OFF(0),
+        AUTOR1(240),
+        AUTOR2(221.5),
+        AUTOB1(120),
+        AUTOB2(138.5),
+        AUTORF(203),
+        AUTOBF(157),
         NULL(0);
 
         private final double value;
@@ -138,6 +158,18 @@ public class ShooterStateMachine {
                     return "TRACKING";
                 case OFF:
                     return "OFF";
+                case AUTOR1:
+                    return "AUTOR1";
+                case AUTOR2:
+                    return "AUTOR2";
+                case AUTOB1:
+                    return "AUTOB1";
+                case AUTOB2:
+                    return "AUTOB2";
+                case AUTORF:
+                    return "AUTORF";
+                case AUTOBF:
+                    return "AUTOBF";
                 case NULL:
                 default:
                     return "NULL";
@@ -148,6 +180,9 @@ public class ShooterStateMachine {
     public enum HoodState {
         READY(0.12),
         DEFAULT(0.12),
+        AUTO1(0.075),
+        AUTO2(0.05),
+        AUTOF(0.023),
         NULL(0);
 
         private final double value;
@@ -166,6 +201,12 @@ public class ShooterStateMachine {
                     return "READY";
                 case DEFAULT:
                     return "DEFAULT";
+                case AUTO1:
+                    return "AUTO1";
+                case AUTO2:
+                    return "AUTO2";
+                case AUTOF:
+                    return "AUTOF";
                 case NULL:
                 default:
                     return "NULL";
@@ -173,8 +214,9 @@ public class ShooterStateMachine {
         }
     }
 
-    public void init(HardwareMap hardwareMap) {
-//        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+    public void init(HardwareMap hardwareMap, IMU imu) {
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+
 
         shooterR = hardwareMap.get(DcMotorEx.class, "shooterR");
         shooterL = hardwareMap.get(DcMotorEx.class, "shooterL");
@@ -213,6 +255,7 @@ public class ShooterStateMachine {
     }
 
     public void setHoodPosition(double position) {
+        MathFunctions.clamp(position, 0.02, 0.12);
         hoodR.setPosition(position);
         hoodL.setPosition(position);
     }
@@ -220,8 +263,7 @@ public class ShooterStateMachine {
     public void runT2Angle(double angle) {
 
         // Clamp to physical limits
-        if (angle < 98) angle = 98;
-        if (angle > 270) angle = 270;
+        angle = MathFunctions.clamp(angle, 98, 270);
 
         // Linear mapping
         double position = (angle - 98.0) / 172.0;
@@ -246,27 +288,49 @@ public class ShooterStateMachine {
 
     public double offsetAngle = 0;
     public double TargetAnge = 0;
+    Pose redTarget = new Pose(140, 140);
+    Pose blueTarget = new Pose(4, 140);
 
     public double getTurretAngle(Pose robotPose) {
         double dx;
         double targetY = 140;
 
-        if (Drive.red) {dx = 140 - robotPose.getX();
-        } else {dx = robotPose.getX() - 4;
-        } double dy = targetY - robotPose.getY();
+        if (Drive.red) {
+            dx = 140 - robotPose.getX();
+        } else {
+            dx =  4 - robotPose.getX();
+        }
+
+        double dy = targetY - robotPose.getY();
 
         double targetAngle = Math.toDegrees(Math.atan2(dy, dx));
-        double robotAngle = robotPose.getHeading();
+        double robotAngle = Math.toDegrees(robotPose.getHeading());
         robotAngle = (robotAngle % 360 + 360) % 360;
+        double relativeAngle;
 
-        double relativeAngle =  robotAngle - targetAngle;
+        relativeAngle = robotAngle - targetAngle;
+
+
         relativeAngle = (relativeAngle % 360 + 360) % 360;
 
         RobotLog.a("robotAngle: " + String.valueOf(robotAngle) +
                 " | TargetAngle: " + String.valueOf(targetAngle) +
                 " | RelativeAngle: " + String.valueOf(relativeAngle));
 
-        return MathFunctions.clamp(relativeAngle, 90, 270);
+        return MathFunctions.clamp(relativeAngle, 98, 270);
+    }
+
+    public static double shooterVelocity(double goalDistance) {
+        if (goalDistance > 120)
+            goalDistance -= 5;
+        return MathFunctions.clamp(
+                (-0.000115264 * Math.pow(goalDistance, 3))
+                        + (0.0415589 * Math.pow(goalDistance, 2))
+                        + 2.83322 * goalDistance
+                        + 1137.17211,
+                0,
+                2000
+        );
     }
 
     public static double hoodAngle(double goalDistance) {
@@ -275,23 +339,37 @@ public class ShooterStateMachine {
                         - (0.000000436878 * Math.pow(goalDistance, 3))
                         + (0.000070371 * Math.pow(goalDistance, 2))
                         - (0.00498223 * goalDistance)
-                        + 0.186651, 0, 1900
+                        + 0.186651,
+                0.02,
+                0.12
         );
     }
 
-    public static double shooterVelocity(double goalDistance) {
-        return MathFunctions.clamp(
-                (-0.000115264 * Math.pow(goalDistance, 3))
-                        + (0.0415589 * Math.pow(goalDistance, 2))
-                        + 2.83322 * goalDistance
-                        + 1137.17211, 0.02, 0.75
-        );
-    }
+    double limelightAngle;
+    double limelightX;
+    double limelightY;
 
     //UPDATE
-    public void update(Pose robotpose, double goalDistance) {
-//        Shooter State
-        if (RequestedShooterState != CurrentShooterState) {
+    public void update(Pose robotpose) {
+
+        double goalDistance = robotpose.distanceFrom(Drive.red ? redTarget : blueTarget);
+        goalDistance -= 8.5;
+
+        if (limelight.getLatestResult() != null) {
+            limelightAngle = limelight.getLatestResult().getBotpose_MT2().getOrientation().getYaw() + 90;
+            limelightAngle = (limelightAngle % 360 + 360) % 360;
+            Drive.yawOffset = robotpose.getHeading() - limelightAngle;
+
+            limelightX = robotpose.getX() - (limelight.getLatestResult().getBotpose_MT2().getPosition().x * 39.37);
+            limelightY = robotpose.getY() - (limelight.getLatestResult().getBotpose_MT2().getPosition().y * 39.37);
+
+        }
+
+        //Shooter State
+        if (RequestedShooterState == ShooterState.AUTO1 || RequestedShooterState == ShooterState.AUTO2 || RequestedShooterState == ShooterState.AUTOF) {
+            setShooterVelocity(RequestedShooterState.value);
+            CurrentShooterState = RequestedShooterState;
+        } else if (RequestedShooterState != CurrentShooterState) {
             if (RequestedShooterState == ShooterState.READY) {
                 shooterL.setVelocity(shooterVelocity(goalDistance));
                 shooterR.setVelocity(shooterVelocity(goalDistance));
@@ -302,8 +380,18 @@ public class ShooterStateMachine {
                 CurrentShooterState = RequestedShooterState;
             }
         }
-//        Turret State
-        if (RequestedTurretState != CurrentTurretState) {
+        //Turret State
+        if (
+                RequestedTurretState == TurretState.AUTOR1
+                || RequestedTurretState == TurretState.AUTOR2
+                || RequestedTurretState == TurretState.AUTOB1
+                || RequestedTurretState == TurretState.AUTOB2
+                || RequestedTurretState == TurretState.AUTORF
+                || RequestedTurretState == TurretState.AUTOBF
+        ) {
+            runT2Angle(RequestedTurretState.value);
+            CurrentTurretState = RequestedTurretState;
+        } else if (RequestedTurretState != CurrentTurretState) {
             if (RequestedTurretState == TurretState.TRACKING) {
                 runT2Angle(getTurretAngle(robotpose));
                 CurrentTurretState = RequestedTurretState;
@@ -313,8 +401,11 @@ public class ShooterStateMachine {
             }
         }
         //Hood State
-        if (RequestedHoodState != CurrentHoodState) {
-            if (RequestedHoodState ==  HoodState.READY) {
+        if (RequestedHoodState == HoodState.AUTO1 || RequestedHoodState == HoodState.AUTO2 || RequestedHoodState == HoodState.AUTOF) {
+            setHoodPosition(RequestedHoodState.value);
+            CurrentHoodState = RequestedHoodState;
+        } else if (RequestedHoodState != CurrentHoodState) {
+            if (RequestedHoodState == HoodState.READY) {
                 setHoodPosition(hoodAngle(goalDistance));
                 CurrentHoodState = RequestedHoodState;
             } else if (RequestedHoodState == HoodState.DEFAULT) {
@@ -322,19 +413,18 @@ public class ShooterStateMachine {
                 CurrentHoodState = RequestedHoodState;
             }
         }
-
+        //LOOP
         if (RequestedShooterState == ShooterState.READY) {
-
             // Update shooter velocity
             shooterL.setVelocity(shooterVelocity(goalDistance));
             shooterR.setVelocity(shooterVelocity(goalDistance));
-
             // Update hood position
             setHoodPosition(hoodAngle(goalDistance));
-
             // Update turret angle
-
-            CurrentShooterState = ShooterState.READY;
+            runT2Angle(getTurretAngle(robotpose));
+            CurrentShooterState = RequestedShooterState;
+            CurrentHoodState = RequestedHoodState;
+            CurrentTurretState = RequestedTurretState;
         }
     }
 

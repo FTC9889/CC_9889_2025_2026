@@ -26,7 +26,7 @@ public class Robot {
     public void init(HardwareMap hardwareMap) {
         mActualDrive.init(hardwareMap);
         mIntake.init(hardwareMap);
-        mShooter.init(hardwareMap);
+        mShooter.init(hardwareMap, mActualDrive.imu);
         mDrive = Constants.createFollower(hardwareMap);
 ////        mSD.init(hardwareMap);
     }
@@ -81,10 +81,7 @@ public class Robot {
 
     public void update() {
         mIntake.update(DistaceFromTarget());
-        mShooter.update(
-                new Pose(mDrive.getPose().getX(), mDrive.getPose().getY(), mDrive.getPose().getHeading()),
-                DistaceFromTarget()
-        );
+        mShooter.update(new Pose(mDrive.getPose().getX(), mDrive.getPose().getY(), mDrive.getPose().getHeading()));
         mDrive.update();
     }
 

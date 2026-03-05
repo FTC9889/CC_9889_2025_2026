@@ -24,7 +24,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 public class BlueClose extends OpMode {
     Robot mRobot = new Robot();
 
-    private Follower follower;
     private Timer pathTimer;
     private int pathState = 0;
     private Paths paths;
@@ -59,11 +58,10 @@ public class BlueClose extends OpMode {
         Drive.red = false;
         mRobot.init(hardwareMap);
 
-        follower = Constants.createFollower(hardwareMap);
         pathTimer = new Timer();
 
-        paths = new Paths(follower);
-        follower.setStartingPose(startPose);
+        paths = new Paths(mRobot.mDrive);
+        mRobot.mDrive.setStartingPose(startPose);
         mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
         mRobot.update();
     }
@@ -77,13 +75,13 @@ public class BlueClose extends OpMode {
     @Override
     public void loop() {
 
-        follower.update();
+        mRobot.mDrive.update();
         autonomousPathUpdate();
 
         telemetry.addData("Path State", pathState);
-        telemetry.addData("X", follower.getPose().getX());
-        telemetry.addData("Y", follower.getPose().getY());
-        telemetry.addData("Heading", Math.toDegrees(follower.getPose().getHeading()));
+        telemetry.addData("X", mRobot.mDrive.getPose().getX());
+        telemetry.addData("Y", mRobot.mDrive.getPose().getY());
+        telemetry.addData("Heading", Math.toDegrees(mRobot.mDrive.getPose().getHeading()));
         telemetry.update();
         mRobot.update();
     }
@@ -91,12 +89,12 @@ public class BlueClose extends OpMode {
     private void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                follower.followPath(paths.ShootPreload);
+                mRobot.mDrive.followPath(paths.ShootPreload);
                 mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOB1);
                 setPathState(101);
                 break;
             case 101:
-                if (!follower.isBusy() && mRobot.isComplete()) {
+                if (!mRobot.mDrive.isBusy() && mRobot.isComplete()) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
                     shotTimer.reset();
                     setPathState(1);
@@ -106,7 +104,7 @@ public class BlueClose extends OpMode {
                 RobotLog.a("RobotC", mRobot.isComplete());
                 RobotLog.a("timer", shotTimer);
                 if (mRobot.isComplete() && shotTimer.milliseconds() > 1000){
-                    follower.followPath(paths.Pickup1);
+                    mRobot.mDrive.followPath(paths.Pickup1);
                     mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
                     mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOB1);
                     setPathState(1001);
@@ -114,42 +112,42 @@ public class BlueClose extends OpMode {
                 break;
             case 1001:
                 if (mRobot.isComplete()) {
-                    follower.followPath(paths.Turn);
+                    mRobot.mDrive.followPath(paths.Turn);
                     setPathState(1002);
                 }
                 break;
             case 1002:
-                if (!follower.isBusy()) {
-                    follower.followPath(paths.Pickup1);
+                if (!mRobot.mDrive.isBusy()) {
+                    mRobot.mDrive.followPath(paths.Pickup1);
                     setPathState(1003);
                 }
                 break;
             case 1003:
-                if (!follower.isBusy()) {
-                    follower.followPath(paths.Gate1);
+                if (!mRobot.mDrive.isBusy()) {
+                    mRobot.mDrive.followPath(paths.Gate1);
                     setPathState(1004);
                 }
                 break;
             case 1004:
-                if (!follower.isBusy()) {
-                    follower.followPath(paths.Gate2);
+                if (!mRobot.mDrive.isBusy()) {
+                    mRobot.mDrive.followPath(paths.Gate2);
                     shotTimer.reset();
                     setPathState(2);
                 }
                 break;
             case 2:
-                if ((mRobot.isComplete() && !follower.isBusy())) {
+                if ((mRobot.isComplete() && !mRobot.mDrive.isBusy())) {
                     setPathState(2001);
                 } else if (shotTimer.milliseconds() > 2500) {
                     setPathState(2001);
                 }
                 break;
             case 2001:
-                follower.followPath(paths.Shoot1);
+                mRobot.mDrive.followPath(paths.Shoot1);
                 setPathState(21);
                 break;
             case 21:
-                if (!follower.isBusy()) {
+                if (!mRobot.mDrive.isBusy()) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
                     shotTimer.reset();
                     setPathState(3);
@@ -159,76 +157,76 @@ public class BlueClose extends OpMode {
                 if (mRobot.mIntake.isComplete() && shotTimer.milliseconds() > 1000) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
                     mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOB2);
-                    follower.followPath(paths.Pickup2);
+                    mRobot.mDrive.followPath(paths.Pickup2);
                     setPathState(4);
                 }
                 break;
             case 4:
-                if (!follower.isBusy() && mRobot.isComplete()) {
-                    follower.followPath(paths.Shoot2);
+                if (!mRobot.mDrive.isBusy() && mRobot.isComplete()) {
+                    mRobot.mDrive.followPath(paths.Shoot2);
                     setPathState(51);
                 }
                 break;
             case 51:
-                if (!follower.isBusy()) {
+                if (!mRobot.mDrive.isBusy()) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
                     shotTimer.reset();
                     setPathState(5);
                 }
                 break;
             case 5:
-                if (!follower.isBusy() && shotTimer.milliseconds() > 1000) {
+                if (!mRobot.mDrive.isBusy() && shotTimer.milliseconds() > 1000) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
-                    follower.followPath(paths.Pickup3);
+                    mRobot.mDrive.followPath(paths.Pickup3);
                     setPathState(6);
                 }
                 break;
             case 6:
-                if (!follower.isBusy()) {
-                    follower.followPath(paths.Pickup3_2);
+                if (!mRobot.mDrive.isBusy()) {
+                    mRobot.mDrive.followPath(paths.Pickup3_2);
                     setPathState(7);
                 }
                 break;
             case 7:
-                if (!follower.isBusy()) {
-                    follower.followPath(paths.Shoot3);
+                if (!mRobot.mDrive.isBusy()) {
+                    mRobot.mDrive.followPath(paths.Shoot3);
                     setPathState(8);
                 }
                 break;
             case 8:
-                if (!follower.isBusy()) {
+                if (!mRobot.mDrive.isBusy()) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
                     shotTimer.reset();
                     setPathState(9);
                 }
                 break;
             case 9:
-                if (!follower.isBusy() && shotTimer.milliseconds() > 1000) {
-                    follower.followPath(paths.Pickup4);
+                if (!mRobot.mDrive.isBusy() && shotTimer.milliseconds() > 1000) {
+                    mRobot.mDrive.followPath(paths.Pickup4);
                     setPathState(10);
                 }
                 break;
             case 10:
-                if (!follower.isBusy()) {
+                if (!mRobot.mDrive.isBusy()) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
-                    follower.followPath(paths.Pickup4_2);
+                    mRobot.mDrive.followPath(paths.Pickup4_2);
                     setPathState(11);
                 }
                 break;
             case 11:
-                if (!follower.isBusy() && mRobot.isComplete()) {
-                    follower.followPath(paths.Shoot4);
+                if (!mRobot.mDrive.isBusy() && mRobot.isComplete()) {
+                    mRobot.mDrive.followPath(paths.Shoot4);
                     setPathState(12);
                 }
                 break;
             case 12:
-                if (!follower.isBusy()) {
-                    follower.followPath(paths.Shoot4_2);
+                if (!mRobot.mDrive.isBusy()) {
+                    mRobot.mDrive.followPath(paths.Shoot4_2);
                     setPathState(13);
                 }
                 break;
             case 13:
-                if (!follower.isBusy()) {
+                if (!mRobot.mDrive.isBusy()) {
                     shotTimer.reset();
                     mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
                     setPathState(14);
@@ -242,7 +240,7 @@ public class BlueClose extends OpMode {
                 }
                 break;
             case 15:
-                follower.followPath(paths.Park);
+                mRobot.mDrive.followPath(paths.Park);
                 setPathState(-1000);
                 break;
         }
@@ -342,6 +340,6 @@ public class BlueClose extends OpMode {
 
     @Override
     public void stop() {
-        Robot.robotPose = follower.getPose();
+        Robot.robotPose = mRobot.mDrive.getPose();
     }
 }

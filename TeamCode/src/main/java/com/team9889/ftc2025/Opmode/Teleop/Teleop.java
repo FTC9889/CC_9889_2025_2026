@@ -55,7 +55,6 @@ public class Teleop extends OpMode {
 
     private boolean automatedDrive;
     private Supplier<PathChain> pathChain;
-    private TelemetryManager telemetryM;
 
     ElapsedTime shoot = new ElapsedTime();
     ElapsedTime shootWait = new ElapsedTime();
@@ -83,17 +82,9 @@ public class Teleop extends OpMode {
             AparkPose = BluePark;
         }
 
-        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-        pathChain = () -> mRobot.mDrive.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(mRobot.mDrive::getPose, new Pose(45, 98))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(mRobot.mDrive::getHeading, Math.toRadians(45), 0.8))
-                .build();
-
-        pathTimer = new Timer();
-
         mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
+        mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
         mRobot.update();
-
     }
 
 

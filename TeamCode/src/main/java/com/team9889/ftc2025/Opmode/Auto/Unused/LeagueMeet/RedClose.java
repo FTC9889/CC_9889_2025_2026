@@ -1,6 +1,4 @@
-package com.team9889.ftc2025.Opmode.Auto.Used;
-
-import android.view.contentcapture.DataRemovalRequest;
+package com.team9889.ftc2025.Opmode.Auto.Unused.LeagueMeet;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
@@ -9,6 +7,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
@@ -17,10 +16,9 @@ import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
 import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-
-@Autonomous(name = "🟦BlueCloseTest", group = "Blue", preselectTeleOp = "Teleop")
-public class BlueCloseTest extends OpMode {
+@Disabled
+@Autonomous(name = "🟥RedClose", group = "Red", preselectTeleOp = "Teleop")
+public class RedClose extends OpMode {
     Robot mRobot = new Robot();
 
     private Timer pathTimer;
@@ -31,31 +29,31 @@ public class BlueCloseTest extends OpMode {
 
     /* ---------------- FLIPPED POSES WITH +180° HEADINGS ---------------- */
 
-    private final Pose startPose   = new Pose(25.696, 129.149, Math.toRadians(-40));
-    private final Pose shootPreload= new Pose(56.000, 103.000);
-    private final Pose turn        = new Pose(46.000, 83.832);
-    private final Pose pickUp1     = new Pose(19.000, 83.832);
-    private final Pose gateControl = new Pose(21.2, 75);
-    private final Pose gate1       = new Pose(24.000, 75.700);
-    private final Pose gate2       = new Pose(20.000, 75.700);
-    private final Pose shoot1      = new Pose(56.000, 103.000);
-    private final Pose pickUp2     = new Pose(12.627, 58.701);
-    private final Pose control2    = new Pose(60.346, 58.680);
-    private final Pose shoot2      = new Pose(60.080, 72.924);
-    private final Pose pickup3     = new Pose(52.000, 36.000);
-    private final Pose control3    = new Pose(60.500, 36.000);
-    private final Pose pickup3_2   = new Pose(12.500, 36.000);
-    private final Pose shoot3      = new Pose(shoot2.getX(), shoot2.getY());
-    private final Pose pickup4     = new Pose(9.500, 52.800);
-    private final Pose pickup4_2   = new Pose(9.500, 8.500);
-    private final Pose shoot4      = new Pose(10.500, 52.800);
-    private final Pose shoot4_2    = new Pose(shoot2.getX(), shoot2.getY());
-    private final Pose park        = new Pose(59.700, 58.800);
+    private final Pose startPose   = new Pose(118.304, 129.149, Math.toRadians(220));   // 37 + 180
+    private final Pose shootPreload= new Pose(88.000, 103.000);
+    private final Pose turn        = new Pose(98, 83.832);
+    private final Pose pickUp1     = new Pose(125, 83.832);
+    private final Pose gateControl = new Pose(122.8, 75);
+    private final Pose gate1       = new Pose(120, 73.7);
+    private final Pose gate2       = new Pose(128, 73.7);
+    private final Pose shoot1      = new Pose(88.000, 103.000);
+    private final Pose pickUp2     = new Pose(131.373, 58.701);
+    private final Pose control2    = new Pose(83.654, 58.680);
+    private final Pose shoot2      = new Pose(83.920, 72.924);
+    private final Pose pickup3     = new Pose(92, 36);
+    private final Pose control3    = new Pose(83.5, 36);
+    private final Pose pickup3_2   = new Pose(131.5, 36);
+    private final Pose shoot3      = new Pose(83.920, 72.924);
+    private final Pose pickup4     = new Pose(133.5, 52.8);
+    private final Pose pickup4_2   = new Pose(133.5, 9.5);
+    private final Pose shoot4     = new Pose(131.5, 52.8);
+    private final Pose shoot4_2   = new Pose(84.3, 72.924);
+    private final Pose park        = new Pose(84.3, 58.8);
 
 
     @Override
     public void init() {
-        Drive.red = false;
+        Drive.red = true;
         mRobot.init(hardwareMap);
 
         pathTimer = new Timer();
@@ -90,7 +88,7 @@ public class BlueCloseTest extends OpMode {
         switch (pathState) {
             case 0:
                 mRobot.mDrive.followPath(paths.ShootPreload);
-                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOB1);
+                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOR1);
                 setPathState(101);
                 break;
             case 101:
@@ -106,7 +104,7 @@ public class BlueCloseTest extends OpMode {
                 if (mRobot.isComplete() && shotTimer.milliseconds() > 1000){
                     mRobot.mDrive.followPath(paths.Pickup1);
                     mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
-                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOB1);
+                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOR1);
                     setPathState(1001);
                 }
                 break;
@@ -119,11 +117,30 @@ public class BlueCloseTest extends OpMode {
             case 1002:
                 if (!mRobot.mDrive.isBusy()) {
                     mRobot.mDrive.followPath(paths.Pickup1);
+                    setPathState(1003);
+                }
+                break;
+            case 1003:
+                if (!mRobot.mDrive.isBusy()) {
+                    mRobot.mDrive.followPath(paths.Gate1);
+                    setPathState(1004);
+                }
+                break;
+            case 1004:
+                if (!mRobot.mDrive.isBusy()) {
+                    mRobot.mDrive.followPath(paths.Gate2);
                     setPathState(2);
                 }
                 break;
             case 2:
-                if (mRobot.isComplete() && !mRobot.mDrive.isBusy()) {
+                if ((mRobot.isComplete() && !mRobot.mDrive.isBusy())) {
+                    setPathState(2001);
+                } else if (shotTimer.milliseconds() > 2500) {
+                    setPathState(2001);
+                }
+                break;
+            case 2001:
+                if (!mRobot.mDrive.isBusy()) {
                     mRobot.mDrive.followPath(paths.Shoot1);
                     setPathState(21);
                 }
@@ -138,20 +155,8 @@ public class BlueCloseTest extends OpMode {
             case 3:
                 if (mRobot.mIntake.isComplete() && shotTimer.milliseconds() > 1000) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
-                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOB2);
+                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOR2);
                     mRobot.mDrive.followPath(paths.Pickup2);
-                    setPathState(1003);
-                }
-                break;
-            case 1003:
-                if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mDrive.followPath(paths.Gate1);
-                    setPathState(1004);
-                }
-                break;
-            case 1004:
-                if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mDrive.followPath(paths.Gate2);
                     setPathState(4);
                 }
                 break;
@@ -252,32 +257,32 @@ public class BlueCloseTest extends OpMode {
 
             ShootPreload = follower.pathBuilder()
                     .addPath(new BezierLine(startPose, shootPreload))
-                    .setLinearHeadingInterpolation(Math.toRadians(-40), Math.toRadians(270)) // +180
+                    .setLinearHeadingInterpolation(Math.toRadians(220), Math.toRadians(270)) // +180
                     .build();
 
             Turn = follower.pathBuilder()
                     .addPath(new BezierLine(shootPreload, turn))
-                    .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(180)) // +180
+                    .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0)) // +180
                     .build();
 
             Pickup1 = follower.pathBuilder()
                     .addPath(new BezierLine(turn, pickUp1))
-                    .setTangentHeadingInterpolation()
+                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                     .build();
 
             Gate1 = follower.pathBuilder()
-                    .addPath(new BezierCurve(pickUp1, gateControl, gate1))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(270))
+                    .addPath(new BezierCurve(pickUp1,gateControl, gate1))
+                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(90))
                     .build();
 
             Gate2 = follower.pathBuilder()
                     .addPath(new BezierLine(gate1, gate2))
-                    .setConstantHeadingInterpolation(Math.toRadians(270))
+                    .setConstantHeadingInterpolation(Math.toRadians(90))
                     .build();
 
             Shoot1 = follower.pathBuilder()
                     .addPath(new BezierLine(gate2, shoot1))
-                    .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(270))
+                    .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(270)) // -175 + 180 = 5
                     .build();
 
             Pickup2 = follower.pathBuilder()
@@ -287,7 +292,7 @@ public class BlueCloseTest extends OpMode {
 
             Shoot2 = follower.pathBuilder()
                     .addPath(new BezierLine(pickUp2, shoot2))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(270)) // -180 + 180 = 0
+                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270)) // -180 + 180 = 0
                     .build();
 
             Pickup3 = follower.pathBuilder()
@@ -302,7 +307,7 @@ public class BlueCloseTest extends OpMode {
 
             Shoot3 = follower.pathBuilder()
                     .addPath(new BezierLine(pickup3_2, shoot3))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(270))
+                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270))
                     .build();
 
             Pickup4 = follower.pathBuilder()

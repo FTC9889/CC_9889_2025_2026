@@ -1,9 +1,6 @@
-package com.team9889.ftc2025.Opmode.Auto.Used;
-
-import android.view.contentcapture.DataRemovalRequest;
+package com.team9889.ftc2025.Opmode.Auto.Used.Far;
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -12,13 +9,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.RobotLog;
 import com.team9889.ftc2025.Subsystem.Drive;
 import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
 import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 @Disabled
 @Autonomous(name = "🟦BlueFar", group = "Blue", preselectTeleOp = "Teleop")
 public class BlueFar extends OpMode {

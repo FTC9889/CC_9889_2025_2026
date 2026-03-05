@@ -1,4 +1,4 @@
-package com.team9889.ftc2025.Opmode.Auto.Unused; // make sure this aligns with class location
+package com.team9889.ftc2025.Opmode.Auto.Unused.ThirdMeet; // make sure this aligns with class location
 
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
@@ -6,7 +6,6 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.team9889.ftc2025.Subsystem.Robot;
 

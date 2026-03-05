@@ -71,6 +71,8 @@ public class ShooterStateMachine {
         READY(ShooterState.READY,
                 TurretState.TRACKING,
                 HoodState.READY),
+        AUTOCLOSER(ShooterState.AUTOCLOSE, TurretState.AUTOCLOSER, HoodState.AUTOCLOSE),
+        AUTOCLOSEB(ShooterState.AUTOCLOSE, TurretState.AUTOCLOSEB, HoodState.AUTOCLOSE),
         AUTOR1(ShooterState.AUTO1, TurretState.AUTOR1, HoodState.AUTO1),
         AUTOR2(ShooterState.AUTO2, TurretState.AUTOR2, HoodState.AUTO2),
         AUTOB1(ShooterState.AUTO1, TurretState.AUTOB1, HoodState.AUTO1),
@@ -97,6 +99,7 @@ public class ShooterStateMachine {
     public enum ShooterState {
         READY(0),
         OFF(0),
+        AUTOCLOSE(0),
         AUTO1(1300),
         AUTO2(1550),
         AUTOF(1900),
@@ -118,6 +121,8 @@ public class ShooterStateMachine {
                     return "READY";
                 case OFF:
                     return "OFF";
+                case AUTOCLOSE:
+                    return "AUTOCLOSE";
                 case AUTO1:
                     return "AUTO1";
                 case AUTO2:
@@ -134,6 +139,8 @@ public class ShooterStateMachine {
     public enum TurretState {
         TRACKING(0),
         OFF(0),
+        AUTOCLOSER(240),
+        AUTOCLOSEB(221.5),
         AUTOR1(240),
         AUTOR2(221.5),
         AUTOB1(120),
@@ -162,6 +169,10 @@ public class ShooterStateMachine {
                     return "AUTOR1";
                 case AUTOR2:
                     return "AUTOR2";
+                case AUTOCLOSER:
+                    return "AUTOCLOSER";
+                case AUTOCLOSEB:
+                    return "AUTOCLOSEB";
                 case AUTOB1:
                     return "AUTOB1";
                 case AUTOB2:
@@ -180,6 +191,7 @@ public class ShooterStateMachine {
     public enum HoodState {
         READY(0.12),
         DEFAULT(0.12),
+        AUTOCLOSE(0),
         AUTO1(0.075),
         AUTO2(0.05),
         AUTOF(0.023),
@@ -201,6 +213,8 @@ public class ShooterStateMachine {
                     return "READY";
                 case DEFAULT:
                     return "DEFAULT";
+                case AUTOCLOSE:
+                    return "AUTOCLOSE";
                 case AUTO1:
                     return "AUTO1";
                 case AUTO2:

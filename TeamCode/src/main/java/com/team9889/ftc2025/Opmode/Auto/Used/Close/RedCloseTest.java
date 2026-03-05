@@ -1,4 +1,4 @@
-package com.team9889.ftc2025.Opmode.Auto.Used;
+package com.team9889.ftc2025.Opmode.Auto.Used.Close;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
@@ -7,7 +7,6 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
@@ -16,10 +15,8 @@ import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
 import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-@Disabled
-@Autonomous(name = "🟥RedClose", group = "Red", preselectTeleOp = "Teleop")
-public class RedClose extends OpMode {
+@Autonomous(name = "🟥RedCloseTest", group = "Red", preselectTeleOp = "Teleop")
+public class RedCloseTest extends OpMode {
     Robot mRobot = new Robot();
 
     private Timer pathTimer;
@@ -36,7 +33,7 @@ public class RedClose extends OpMode {
     private final Pose pickUp1     = new Pose(125, 83.832);
     private final Pose gateControl = new Pose(122.8, 75);
     private final Pose gate1       = new Pose(120, 73.7);
-    private final Pose gate2       = new Pose(128, 73.7);
+    private final Pose gate2       = new Pose(124, 73.7);
     private final Pose shoot1      = new Pose(88.000, 103.000);
     private final Pose pickUp2     = new Pose(131.373, 58.701);
     private final Pose control2    = new Pose(83.654, 58.680);
@@ -47,7 +44,7 @@ public class RedClose extends OpMode {
     private final Pose shoot3      = new Pose(83.920, 72.924);
     private final Pose pickup4     = new Pose(133.5, 52.8);
     private final Pose pickup4_2   = new Pose(133.5, 9.5);
-    private final Pose shoot4     = new Pose(131.5, 52.8);
+    private final Pose shoot4     = new Pose(133.5, 52.8);
     private final Pose shoot4_2   = new Pose(84.3, 72.924);
     private final Pose park        = new Pose(84.3, 58.8);
 
@@ -118,30 +115,11 @@ public class RedClose extends OpMode {
             case 1002:
                 if (!mRobot.mDrive.isBusy()) {
                     mRobot.mDrive.followPath(paths.Pickup1);
-                    setPathState(1003);
-                }
-                break;
-            case 1003:
-                if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mDrive.followPath(paths.Gate1);
-                    setPathState(1004);
-                }
-                break;
-            case 1004:
-                if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mDrive.followPath(paths.Gate2);
                     setPathState(2);
                 }
                 break;
             case 2:
-                if ((mRobot.isComplete() && !mRobot.mDrive.isBusy())) {
-                    setPathState(2001);
-                } else if (shotTimer.milliseconds() > 2500) {
-                    setPathState(2001);
-                }
-                break;
-            case 2001:
-                if (!mRobot.mDrive.isBusy()) {
+                if (mRobot.isComplete() && !mRobot.mDrive.isBusy()) {
                     mRobot.mDrive.followPath(paths.Shoot1);
                     setPathState(21);
                 }
@@ -158,6 +136,18 @@ public class RedClose extends OpMode {
                     mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
                     mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOR2);
                     mRobot.mDrive.followPath(paths.Pickup2);
+                    setPathState(1003);
+                }
+                break;
+            case 1003:
+                if (!mRobot.mDrive.isBusy()) {
+                    mRobot.mDrive.followPath(paths.Gate1);
+                    setPathState(1004);
+                }
+                break;
+            case 1004:
+                if (!mRobot.mDrive.isBusy()) {
+                    mRobot.mDrive.followPath(paths.Gate2);
                     setPathState(4);
                 }
                 break;
@@ -268,12 +258,12 @@ public class RedClose extends OpMode {
 
             Pickup1 = follower.pathBuilder()
                     .addPath(new BezierLine(turn, pickUp1))
-                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                    .setTangentHeadingInterpolation()
                     .build();
 
             Gate1 = follower.pathBuilder()
                     .addPath(new BezierCurve(pickUp1,gateControl, gate1))
-                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(90))
+                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270))
                     .build();
 
             Gate2 = follower.pathBuilder()
@@ -283,7 +273,7 @@ public class RedClose extends OpMode {
 
             Shoot1 = follower.pathBuilder()
                     .addPath(new BezierLine(gate2, shoot1))
-                    .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(270)) // -175 + 180 = 5
+                    .setLinearHeadingInterpolation(Math.toRadians(5), Math.toRadians(270)) // -175 + 180 = 5
                     .build();
 
             Pickup2 = follower.pathBuilder()

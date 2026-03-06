@@ -1,6 +1,7 @@
 package com.team9889.ftc2025.Subsystem.Shooter;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.MathFunctions;
+import com.pedropathing.math.Vector;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -363,10 +364,18 @@ public class ShooterStateMachine {
     double limelightX;
     double limelightY;
 
-    //UPDATE
-    public void update(Pose robotpose) {
+    double shotTime = ;
+    Pose FrobotPose;
 
-        double goalDistance = robotpose.distanceFrom(Drive.red ? redTarget : blueTarget);
+    //UPDATE
+    public void update(Pose robotpose, Vector robotVelocity, double AngularVelocity) {
+        FrobotPose = new Pose(
+                robotpose.getX() + (robotVelocity.getXComponent() * shotTime),
+                robotpose.getY() + (robotVelocity.getYComponent() * shotTime),
+                robotpose.getHeading() + (AngularVelocity * shotTime)
+        );
+
+        double goalDistance = FrobotPose.distanceFrom(Drive.red ? redTarget : blueTarget);
         goalDistance -= 8.5;
 
         if (limelight.getLatestResult() != null) {

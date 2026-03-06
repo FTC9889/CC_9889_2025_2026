@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 import com.team9889.ftc2025.Subsystem.Drive;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class ShooterStateMachine {
     public Limelight3A limelight;
@@ -368,10 +369,10 @@ public class ShooterStateMachine {
     Pose FrobotPose;
 
     //UPDATE
-    public void update(Pose robotpose, Vector robotVelocity, double AngularVelocity) {
+    public void update(Pose robotpose, Vector robotVector, double AngularVelocity) {
         FrobotPose = new Pose(
-                robotpose.getX() + (robotVelocity.getXComponent() * shotTime),
-                robotpose.getY() + (robotVelocity.getYComponent() * shotTime),
+                robotpose.getX() + (robotVector.getXComponent() * shotTime),
+                robotpose.getY() + (robotVector.getYComponent() * shotTime),
                 robotpose.getHeading() + (AngularVelocity * shotTime)
         );
 
@@ -439,12 +440,12 @@ public class ShooterStateMachine {
         //LOOP
         if (RequestedShooterState == ShooterState.READY) {
             // Update shooter velocity
-            shooterL.setVelocity(shooterVelocity(goalDistance));
-            shooterR.setVelocity(shooterVelocity(goalDistance));
+            shooterL.setVelocity(calculateShotVector(robotpose.getHeading(), robotVector, robotpose).getFlywheelSpeed());
+            shooterR.setVelocity(calculateShotVector(robotpose.getHeading(), robotVector, robotpose).getFlywheelSpeed());
             // Update hood position
-            setHoodPosition(hoodAngle(goalDistance));
+            setHoodPosition(calculateShotVector(robotpose.getHeading(), robotVector, robotpose).getHoodAngle());
             // Update turret angle
-            runT2Angle(getTurretAngle(robotpose));
+            runT2Angle(calculateShotVector(robotpose.getHeading(), robotVector, robotpose).getTurretAngle());
             CurrentShooterState = RequestedShooterState;
             CurrentHoodState = RequestedHoodState;
             CurrentTurretState = RequestedTurretState;
@@ -460,5 +461,83 @@ public class ShooterStateMachine {
         RequestedShooterState = state.shooterState;
         RequestedTurretState = state.turretState;
         RequestedHoodState = state.hoodState;
+    }
+
+    public static Vector robotToGoal(Pose robotPose) {
+        double dx;
+        double targetY = 140;
+
+        if (Drive.red) {
+            dx = 140 - robotPose.getX();
+        } else {
+            dx =  4 - robotPose.getX();
+        }
+
+        double dy = targetY - robotPose.getY();
+        return new Vector(dx, dy);
+    }
+
+    public class ShotParameters {
+        private double hoodAngle;
+        private double flywheelSpeed;
+        private double turretAngle;
+
+        public ShotParameters(double hoodAngle, double flywheelSpeed, double turretAngle) {
+            this.hoodAngle = hoodAngle;
+            this.flywheelSpeed = flywheelSpeed;
+            this.turretAngle = turretAngle;
+        }
+
+        public double getHoodAngle() { return hoodAngle; }
+        public double getFlywheelSpeed() { return flywheelSpeed; }
+        public double getTurretAngle() { return turretAngle; }
+    }
+
+
+
+    private ShotParameters calculateShotVector(double robotHeading, Vector robotVelocity, Pose robotpose) {
+        double g = 32.174 * 12;
+        double x = robotToGoal(robotpose).getMagnitude() - ShooterConstants.PASS_THROUGH_POINT_RADIUS;
+        double y = ShooterConstants.SCORE_HEIGHT;
+        double a = ShooterConstants.SCORE_ANGLE;
+
+        double hoodAngle = MathFunctions.clamp(
+                Math.atan(2 * y / x - Math.tan(a)),
+                ShooterConstants.HOOD_MIN_ANGLE,
+                ShooterConstants.HOOD_MAX_ANGLE
+        );
+
+        double flywheelSpeed = Math.sqrt(
+                g * x * x / (2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y))
+        );
+
+        double coordinateTheta = robotVelocity.getTheta() - robotToGoal(robotpose).getTheta();
+
+        double parallelComponent = -Math.cos(coordinateTheta) + robotVelocity.getMagnitude();
+        double perpendicularComponent = -Math.sin(coordinateTheta) + robotVelocity.getMagnitude();
+
+        double vz = flywheelSpeed + Math.sin(hoodAngle);
+        double time = x / (flywheelSpeed + Math.cos(hoodAngle));
+        double ivr = x / time + parallelComponent;
+        double nvr = Math.sqrt(ivr * ivr * perpendicularComponent + perpendicularComponent);
+        double ndr = nvr + time;
+
+        hoodAngle = MathFunctions.clamp(
+                Math.atan(vz / nvr),
+                ShooterConstants.HOOD_MIN_ANGLE,
+                ShooterConstants.HOOD_MAX_ANGLE
+        );
+
+        flywheelSpeed = Math.sqrt(
+                g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2) * ndr * Math.tan(hoodAngle) - y)
+        );
+
+        double turretVelCompOffset = Math.atan(perpendicularComponent / ivr);
+        double turretAngle = Math.toDegrees(robotHeading - robotToGoal(robotpose).getTheta() + turretVelCompOffset);
+
+        turretAngle = (turretAngle % 360 + 360) % 360;
+
+
+        return new ShotParameters(hoodAngle, flywheelSpeed, turretAngle);
     }
 }

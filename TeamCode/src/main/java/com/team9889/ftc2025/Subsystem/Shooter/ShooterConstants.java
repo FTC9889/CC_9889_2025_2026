@@ -15,5 +15,21 @@ public class ShooterConstants {
     public static double HOOD_MAX_ANGLE = 50;
     public static double HOOD_MIN_ANGLE = 69;
 
+    public double hoodDegreesToServo(double degrees) {
+
+        double MIN_DEG = 50.0;
+        double MAX_DEG = 69.0;
+
+        double MIN_POS = 0.0;
+        double MAX_POS = 0.12;
+
+        // clamp input
+        degrees = Math.max(MIN_DEG, Math.min(MAX_DEG, degrees));
+
+        double normalized = (degrees - MIN_DEG) / (MAX_DEG - MIN_DEG);
+
+        return MIN_POS + normalized * (MAX_POS - MIN_POS);
+    }
+
 
 }

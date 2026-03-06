@@ -12,8 +12,8 @@ public class ShooterConstants {
     public static double SCORE_ANGLE = Math.toRadians(-40);
     public static double PASS_THROUGH_POINT_RADIUS = 12.0;
 
-    public static double HOOD_MAX_ANGLE = 40;
-    public static double HOOD_MIN_ANGLE = 21;
+    public static double HOOD_MAX_ANGLE = 50;
+    public static double HOOD_MIN_ANGLE = 69;
 
 
 }

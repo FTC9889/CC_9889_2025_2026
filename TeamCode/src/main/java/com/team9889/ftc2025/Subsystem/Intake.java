@@ -1,16 +1,19 @@
 package com.team9889.ftc2025.Subsystem;
 
 import com.pedropathing.math.MathFunctions;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.RobotLog;
+
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 public class Intake {
+
+    boolean ballEvent = false;
+    boolean lastBallState = false;
 
     public DcMotorEx intakeR, intakeL;
     public Servo gate;
@@ -39,8 +42,9 @@ public class Intake {
         INTAKE(IntakeState.ON, GateState.CLOSED),
         KEEP(IntakeState.SLOW, GateState.CLOSED),
         SHOOT(IntakeState.ON, GateState.OPEN),
-        OUTTAKE(IntakeState.OUTTAKE, GateState.CLOSED),
+        OUTTAKE(IntakeState.OUTTAKE, GateState.OPEN),
         OFF(IntakeState.OFF, GateState.CLOSED),
+        SLOW(IntakeState.SLOW, GateState.CLOSED)
         ;
 
         final IntakeState intakeState;
@@ -55,7 +59,7 @@ public class Intake {
     public enum IntakeState{
         ON(1),
         OFF(0),
-        SLOW(0.75),
+        SLOW(0.2),
         OUTTAKE(-1),
         NULL(0);
 
@@ -86,7 +90,7 @@ public class Intake {
     }
     public enum GateState{
         OPEN(0.7),
-        CLOSED(0.55),
+        CLOSED(0.48),
         NULL(0);
 
         private final double value;
@@ -127,6 +131,9 @@ public class Intake {
     double intakePower = 2;
     public void setIntakePower(double power) {
         if (intakePower != power) {
+            if (rumble) {
+                power = 0.2;
+            }
             intakeR.setPower(power);
             intakeL.setPower(power);
             intakePower = power;
@@ -139,7 +146,7 @@ public class Intake {
 
     double transferPower = 2;
     public void setGatePosition(double position) {
-        position = MathFunctions.clamp(position, 0.55, 0.7);
+        position = MathFunctions.clamp(position, 0.48, 0.7);
         gate.setPosition(position);
     }
 
@@ -155,11 +162,24 @@ public class Intake {
         return MathFunctions.clamp(intakePow, 0, 1);
     }
 
+
+    public boolean rumble = false;
+
+
     ElapsedTime outtakeTimer = new ElapsedTime();
+    ElapsedTime intakeBallCounter = new ElapsedTime();
     public void update(double goalDistance) {
+        boolean ballDetected = ballInIntake() == 3;
+
+        if (ballDetected && !lastBallState) {
+            ballEvent = true;
+        } else {
+            ballEvent = false;
+        }
+
+        lastBallState = ballDetected;
 
         // Gate
-
         setGatePosition(RequestedGateState.value);
         CurrentGateState = RequestedGateState;
 
@@ -167,33 +187,74 @@ public class Intake {
         // Intake
         if (RequestedIntakeState != IntakeState.NULL &&
                 RequestedIntakeState != CurrentIntakeState) {
+                setIntakePower(RequestedIntakeState.value);
             if (RequestedGateState != GateState.OPEN) {
                 setIntakePower(RequestedIntakeState.value);
                 CurrentIntakeState = RequestedIntakeState;
+                CurrentGateState = RequestedGateState;
             } else if (RequestedIntakeState == IntakeState.ON && RequestedGateState == GateState.OPEN) {
                 setIntakePower(intakePower(goalDistance));
                 setGatePosition(GateState.OPEN.value);
-                RobotLog.a("DFT", goalDistance);
                 CurrentIntakeState = RequestedIntakeState;
                 CurrentGateState = RequestedGateState;
             }
         }
 
-        if (RequestedIntakeState == IntakeState.ON && RequestedGateState == GateState.OPEN) {
-            setIntakePower(intakePower(goalDistance));
-            setGatePosition(GateState.OPEN.value);
-            CurrentIntakeState = RequestedIntakeState;
-            CurrentGateState = RequestedGateState;
-        }
+        rumble = rumble(ballInIntake());
+    }
 
+    public boolean rumble(double ball) {
+        return ball == 3;
     }
 
     public boolean isComplete() {
         return RequestedIntakeState == CurrentIntakeState && RequestedGateState == CurrentGateState;
     }
+
+    //0 < 1300
+    //1 =    >1300   < 2000
+    //2 > 2000   < 2500
+
+    double current1 = 1500;
+    double current3 = 3000;
+
+    public double ball;
+    public boolean start = false;
+
+    public double ballInIntake() {
+        double currentMilliampB = intakeL.getCurrent(CurrentUnit.MILLIAMPS);
+        double currentMilliampF = intakeR.getCurrent(CurrentUnit.MILLIAMPS);
+
+        if (CurrentIntakeState == IntakeState.ON && CurrentGateState == GateState.CLOSED) {
+            boolean spike = currentMilliampB > current1 && currentMilliampF > current3;
+            if (spike) {
+                if (!start) {
+                    start = true;
+                    intakeBallCounter.reset();
+                }
+                if (intakeBallCounter.milliseconds() > 250) {
+                    ball = 3;
+                } else {
+                    ball = 2;
+                }
+            } else {
+                start = false;
+                ball = 0;
+            }
+        } else {
+            start = false;
+            ball = 0;
+        }
+        return ball;
+    }
+
     public void requestState(TopLevelState state) {
         RequestedIntakeState = state.intakeState;
         RequestedGateState = state.gateState;
+    }
+
+    public boolean getBallEvent() {
+        return ballEvent;
     }
 }
 

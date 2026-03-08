@@ -21,6 +21,7 @@ import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
 import org.firstinspires.ftc.robotcore.external.Supplier;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
@@ -29,32 +30,22 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 public class Teleop extends OpMode {
     Robot mRobot = new Robot();
 
-    boolean altGate = false;
     boolean shootPress = false;
-    boolean press = false;
-    boolean robotC = false;
-    boolean centricPress = false;
-
-    boolean red = false;
-
-    private Timer pathTimer;
-    private int pathState = 0;
-    private BlueClose.Paths paths;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
 
-    private boolean automatedDrive;
-    private Supplier<PathChain> pathChain;
-
-    ElapsedTime shoot = new ElapsedTime();
-    ElapsedTime shootWait = new ElapsedTime();
-
-    private Pose AparkPose;
-    private Pose AcurretPose;
-    private double Aheading;
-
-    private final Pose RedPark    = new Pose(41, 33.5, Math.toRadians(180));
-    private final Pose BluePark   = new Pose(103, 33.5, Math.toRadians(0));
+//    private boolean automatedDrive = false;
+//    private Supplier<PathChain> pathChain;
+//
+//    ElapsedTime shoot = new ElapsedTime();
+//    ElapsedTime shootWait = new ElapsedTime();
+//
+//    private Pose AparkPose;
+//    private Pose AcurretPose;
+//    private double Aheading;
+//
+//    private final Pose RedPark    = new Pose(41, 33.5, Math.toRadians(180));
+//    private final Pose BluePark   = new Pose(103, 33.5, Math.toRadians(0));
 
 
     @Override
@@ -64,12 +55,14 @@ public class Teleop extends OpMode {
 
         telemetry.setMsTransmissionInterval(11);
 
+        Drive.red = true;
+
         if (Drive.red) {
             mRobot.mShooter.limelight.pipelineSwitch(0);
-            AparkPose = RedPark;
+//            AparkPose = RedPark;
         } else {
             mRobot.mShooter.limelight.pipelineSwitch(1);
-            AparkPose = BluePark;
+//            AparkPose = BluePark;
         }
 
         mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
@@ -93,7 +86,6 @@ public class Teleop extends OpMode {
 
     @Override
     public void loop() {
-        if (!automatedDrive) {
             LLResult Lresult = mRobot.mShooter.limelight.getLatestResult();
             if (Lresult != null && Lresult.isValid() && Lresult.getStaleness() < 100) {
                 Pose3D botpose = Lresult.getBotpose();
@@ -155,6 +147,15 @@ public class Teleop extends OpMode {
                 }
             }
 
+            if (mRobot.mIntake.getBallEvent()) {
+                gamepad1.rumble(500);
+                mRobot.mIntake.requestState(Intake.TopLevelState.SLOW);
+            }
+
+            if (mRobot.mShooter.getShooterReadyEvent()) {
+                gamepad1.rumble(500);
+            }
+
             /////////////////////////////////////////////////////////////////////////////////////////////
             telemetry.addData("x", String.valueOf(x));
             telemetry.addData("y", String.valueOf(y));
@@ -185,24 +186,26 @@ public class Teleop extends OpMode {
 //        telemetry.addLine("********************************");
 //        telemetry.addData("Shooter Velocity", mRobot.mShooter.getShooterVelocity());
 
-            telemetry.addData("robotPose", mRobot.mDrive.getPose());
+        telemetry.addData("robotPose", mRobot.mDrive.getPose());
+        telemetry.addData("intakeEnergy", mRobot.mIntake.intakeL.getCurrent(CurrentUnit.MILLIAMPS));
+        telemetry.addData("intakeFrontEnergy", mRobot.mIntake.intakeR.getCurrent(CurrentUnit.MILLIAMPS));
 
             drawLimelightPose(x, y, heading, mRobot.mDrive.getPose());
 
-            if (gamepad1.aWasPressed()) {
-                mRobot.mDrive.followPath(pathChain.get());
-                AcurretPose = mRobot.mDrive.getPose();
-                automatedDrive = true;
-            }
-            //Stop automated following if the follower is done
-            if (automatedDrive && (gamepad1.bWasPressed() || !mRobot.mDrive.isBusy())) {
-                mRobot.mDrive.startTeleopDrive();
-                automatedDrive = false;
-            }
-        } else {
-            autonomousPathUpdate();
-            setPathState(0);
-        }
+//            if (gamepad1.right_stick_button && gamepad1.left_stick_button) {
+//                mRobot.mDrive.followPath(pathChain.get());
+//                AcurretPose = mRobot.mDrive.getPose();
+//                automatedDrive = true;
+//            }
+//            //Stop automated following if the follower is done
+//            if (automatedDrive && (gamepad1.bWasPressed() || !mRobot.mDrive.isBusy())) {
+//                mRobot.mDrive.startTeleopDrive();
+//                automatedDrive = false;
+//            }
+//        } else {
+//            autonomousPathUpdate();
+//            setPathState(0);
+
 
         telemetry.update();
         mRobot.update();
@@ -249,37 +252,37 @@ public class Teleop extends OpMode {
         dashboard.sendTelemetryPacket(packet);
     }
 
-    private void autonomousPathUpdate() {
-        switch (pathState) {
-            case 0:
-                mRobot.mDrive.followPath(paths.Park);
-                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
-                mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
-                setPathState(1);
-                break;
-            case 1:
-                if (!mRobot.mDrive.isBusy()) {
-                    automatedDrive = true;
-                    setPathState(-1);
-                }
-                break;
-        }
-    }
-
-    private void setPathState(int state) {
-        pathState = state;
-        pathTimer.resetTimer();
-    }
-
-    public class Paths {
-        public PathChain Park;
-
-        public Paths(Follower follower) {
-
-            Park = follower.pathBuilder()
-                    .addPath(new BezierLine(AcurretPose, AparkPose))
-                    .setLinearHeadingInterpolation(Aheading, Math.toRadians(AparkPose.getHeading()))
-                    .build();
-        }
-    }
+//    private void autonomousPathUpdate() {
+//        switch (pathState) {
+//            case 0:
+//                mRobot.mDrive.followPath(paths.Park);
+//                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
+//                mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
+//                setPathState(1);
+//                break;
+//            case 1:
+//                if (!mRobot.mDrive.isBusy()) {
+//                    automatedDrive = true;
+//                    setPathState(-1);
+//                }
+//                break;
+//        }
+//    }
+//
+//    private void setPathState(int state) {
+//        pathState = state;
+//        pathTimer.resetTimer();
+//    }
+//
+//    public class Paths {
+//        public PathChain Park;
+//
+//        public Paths(Follower follower) {
+//
+//            Park = follower.pathBuilder()
+//                    .addPath(new BezierLine(AcurretPose, AparkPose))
+//                    .setLinearHeadingInterpolation(Aheading, Math.toRadians(AparkPose.getHeading()))
+//                    .build();
+//        }
+//    }
 }

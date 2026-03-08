@@ -22,7 +22,7 @@ public class ShooterTest extends OpMode {
     public void loop() {
 
         mRobot.mShooter.setShooterVelocity(shooterVelocity);
-        mRobot.mShooter.setHoodPosition(MathFunctions.clamp(hoodPosition, 0, 0.12));
+        mRobot.mShooter.setHoodPosition(MathFunctions.clamp(hoodPosition, 0, 0.125));
         mRobot.mShooter.runT2Angle(turrentPosition);
 
         if (gamepad1.aWasPressed()) {

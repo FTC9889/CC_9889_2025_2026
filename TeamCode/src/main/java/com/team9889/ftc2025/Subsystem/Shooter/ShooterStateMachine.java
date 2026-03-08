@@ -16,6 +16,10 @@ import com.team9889.ftc2025.Subsystem.Drive;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class ShooterStateMachine {
+
+    boolean shooterReadyEvent = false;
+    boolean lastShooterReady = false;
+
     public Limelight3A limelight;
     public Servo hoodR, hoodL,
             turretR, turretL;
@@ -270,7 +274,8 @@ public class ShooterStateMachine {
     }
 
     public void setHoodPosition(double position) {
-        MathFunctions.clamp(position, 0.02, 0.12);
+//        position += 0.005;
+//        position = MathFunctions.clamp(position, 0.02, 0.12);
         hoodR.setPosition(position);
         hoodL.setPosition(position);
     }
@@ -364,18 +369,31 @@ public class ShooterStateMachine {
     double limelightX;
     double limelightY;
 
-    double shotTime = ;
-    Pose FrobotPose;
+
+    double shotTime = 0.000000000000000000000000000000000000000;
+//    Pose FrobotPose;
+
+    public boolean shooterReady = false;
 
     //UPDATE
     public void update(Pose robotpose, Vector robotVelocity, double AngularVelocity) {
-        FrobotPose = new Pose(
-                robotpose.getX() + (robotVelocity.getXComponent() * shotTime),
-                robotpose.getY() + (robotVelocity.getYComponent() * shotTime),
-                robotpose.getHeading() + (AngularVelocity * shotTime)
-        );
 
-        double goalDistance = FrobotPose.distanceFrom(Drive.red ? redTarget : blueTarget);
+        if (shooterReady && !lastShooterReady) {
+            shooterReadyEvent = true;
+        } else {
+            shooterReadyEvent = false;
+        }
+
+        lastShooterReady = shooterReady;
+
+
+//        FrobotPose = new Pose(
+//                robotpose.getX() + (robotVelocity.getXComponent() * shotTime),
+//                robotpose.getY() + (robotVelocity.getYComponent() * shotTime),
+//                robotpose.getHeading() + (AngularVelocity * shotTime)
+//        );
+
+        double goalDistance = robotpose.distanceFrom(Drive.red ? redTarget : blueTarget);
         goalDistance -= 8.5;
 
         if (limelight.getLatestResult() != null) {
@@ -397,9 +415,15 @@ public class ShooterStateMachine {
                 shooterL.setVelocity(shooterVelocity(goalDistance));
                 shooterR.setVelocity(shooterVelocity(goalDistance));
                 CurrentShooterState = RequestedShooterState;
+                if (shooterR.getVelocity() == RequestedShooterState.value) {
+                    shooterReady = true;
+                } else if (shooterR.getVelocity() != RequestedShooterState.value) {
+                    shooterReady = false;
+                }
             } else if (RequestedShooterState == ShooterState.OFF) {
                 shooterL.setVelocity(0);
                 shooterR.setVelocity(0);
+                shooterReady = false;
                 CurrentShooterState = RequestedShooterState;
             }
         }
@@ -449,6 +473,8 @@ public class ShooterStateMachine {
             CurrentHoodState = RequestedHoodState;
             CurrentTurretState = RequestedTurretState;
         }
+
+
     }
 
     public boolean isComplete() {
@@ -460,5 +486,9 @@ public class ShooterStateMachine {
         RequestedShooterState = state.shooterState;
         RequestedTurretState = state.turretState;
         RequestedHoodState = state.hoodState;
+    }
+
+    public boolean getShooterReadyEvent() {
+        return shooterReadyEvent;
     }
 }

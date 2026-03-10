@@ -80,7 +80,12 @@ public class Robot {
     }
 
     public void update() {
-        mIntake.update(DistaceFromTarget());
+        mIntake.update(new Pose(
+                mDrive.getPose().getX(),
+                mDrive.getPose().getY(),
+                mDrive.getPose().getHeading()
+                )
+        );
         mShooter.update(
                 new Pose(
                         mDrive.getPose().getX(),

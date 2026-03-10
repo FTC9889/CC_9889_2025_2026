@@ -292,16 +292,6 @@ public class ShooterStateMachine {
         turretL.setPosition(position);
     }
 
-//    public void recallbrateRobotPose() {
-//        Drive.robotPose = new Pose2D(
-//                DistanceUnit.INCH,
-//                limelight.getLatestResult().getBotpose_MT2().getPosition().x,
-//                limelight.getLatestResult().getBotpose_MT2().getPosition().y,
-//                AngleUnit.DEGREES,
-//                limelight.getLatestResult().getBotpose_MT2().getOrientation().getYaw(AngleUnit.DEGREES)
-//        );
-//    }
-
     public double getShooterVelocity() {
         return shooterL.getVelocity(AngleUnit.DEGREES);
     }
@@ -340,29 +330,50 @@ public class ShooterStateMachine {
         return MathFunctions.clamp(relativeAngle, 98, 270);
     }
 
+    public boolean JasonWillRememberNotToAirballAndBecomeStephCurryAndHitTheNightNightDeepThreeAgainstOKCInTheLastPointSixSeconds = false;
+
     public static double shooterVelocity(double goalDistance) {
-        if (goalDistance > 120)
-            goalDistance -= 5;
-        return MathFunctions.clamp(
-                (-0.000115264 * Math.pow(goalDistance, 3))
-                        + (0.0415589 * Math.pow(goalDistance, 2))
-                        + 2.83322 * goalDistance
-                        + 1137.17211,
-                0,
-                2000
-        );
+        if (goalDistance > 105) {
+            goalDistance -= 18;
+            return -0.00133333 * Math.pow(goalDistance, 4)
+                    + 0.628889 * Math.pow(goalDistance, 3)
+                    - 110.95 * Math.pow(goalDistance, 2)
+                    + 8687.76587 * goalDistance
+                    - 253167.857;
+        } else {
+            return MathFunctions.clamp(
+                    (-0.000115264 * Math.pow(goalDistance, 3))
+                            + (0.0415589 * Math.pow(goalDistance, 2))
+                            + 2.83322 * goalDistance
+                            + 1137.17211,
+                    0,
+                    2000
+            );
+        }
     }
 
     public static double hoodAngle(double goalDistance) {
-        return MathFunctions.clamp(
-                (0.000000000870861 * Math.pow(goalDistance, 4))
-                        - (0.000000436878 * Math.pow(goalDistance, 3))
-                        + (0.000070371 * Math.pow(goalDistance, 2))
-                        - (0.00498223 * goalDistance)
-                        + 0.186651,
-                0.02,
-                0.12
-        );
+        if (goalDistance > 105) {
+            goalDistance -= 18;
+            return MathFunctions.clamp(
+                    -(1.515152e-7) * goalDistance * goalDistance * goalDistance * goalDistance
+                    + 0.00007383838 * goalDistance * goalDistance * goalDistance
+                    - 0.01340227 * goalDistance * goalDistance
+                    + 1.072591 * goalDistance
+                    - 31.88255, 0.005, 0.04
+            );
+
+        } else {
+            return MathFunctions.clamp(
+                    (0.000000000870861 * Math.pow(goalDistance, 4))
+                            - (0.000000436878 * Math.pow(goalDistance, 3))
+                            + (0.000070371 * Math.pow(goalDistance, 2))
+                            - (0.00498223 * goalDistance)
+                            + 0.186651,
+                    0.02,
+                    0.12
+            );
+        }
     }
 
     double limelightAngle;
@@ -370,7 +381,7 @@ public class ShooterStateMachine {
     double limelightY;
 
 
-    double shotTime = 0.000000000000000000000000000000000000000;
+//    double shotTime = 0.000000000000000000000000000000000000000;
 //    Pose FrobotPose;
 
     public boolean shooterReady = false;
@@ -387,6 +398,9 @@ public class ShooterStateMachine {
         lastShooterReady = shooterReady;
 
 
+
+
+
 //        FrobotPose = new Pose(
 //                robotpose.getX() + (robotVelocity.getXComponent() * shotTime),
 //                robotpose.getY() + (robotVelocity.getYComponent() * shotTime),
@@ -395,6 +409,7 @@ public class ShooterStateMachine {
 
         double goalDistance = robotpose.distanceFrom(Drive.red ? redTarget : blueTarget);
         goalDistance -= 8.5;
+        RobotLog.a("goalDistance: " + String.valueOf(goalDistance));
 
         if (limelight.getLatestResult() != null) {
             limelightAngle = limelight.getLatestResult().getBotpose_MT2().getOrientation().getYaw() + 90;
@@ -415,7 +430,7 @@ public class ShooterStateMachine {
                 shooterL.setVelocity(shooterVelocity(goalDistance));
                 shooterR.setVelocity(shooterVelocity(goalDistance));
                 CurrentShooterState = RequestedShooterState;
-                if (shooterR.getVelocity() == RequestedShooterState.value) {
+                if (shooterR.getVelocity() == shooterVelocity(goalDistance)) {
                     shooterReady = true;
                 } else if (shooterR.getVelocity() != RequestedShooterState.value) {
                     shooterReady = false;
@@ -474,7 +489,12 @@ public class ShooterStateMachine {
             CurrentTurretState = RequestedTurretState;
         }
 
-
+        if (RequestedTurretState == TurretState.TRACKING && RequestedHoodState == HoodState.READY) {
+            setHoodPosition(hoodAngle(goalDistance));
+            runT2Angle(getTurretAngle(robotpose));
+            CurrentHoodState = RequestedHoodState;
+            CurrentTurretState = RequestedTurretState;
+        }
     }
 
     public boolean isComplete() {

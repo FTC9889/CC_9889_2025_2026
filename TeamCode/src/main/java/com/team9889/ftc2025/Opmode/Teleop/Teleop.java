@@ -79,6 +79,8 @@ public class Teleop extends OpMode {
 
     boolean toggle = true;
     boolean result = false;
+    ElapsedTime poseResetTimer = new ElapsedTime();
+    boolean waitingToResetPose = false;
 
     double x;
     double y;
@@ -86,22 +88,35 @@ public class Teleop extends OpMode {
 
     @Override
     public void loop() {
-            LLResult Lresult = mRobot.mShooter.limelight.getLatestResult();
-            if (Lresult != null && Lresult.isValid() && Lresult.getStaleness() < 100) {
-                Pose3D botpose = Lresult.getBotpose();
+        LLResult Lresult = mRobot.mShooter.limelight.getLatestResult();
+        if (Lresult != null && Lresult.isValid() && Lresult.getStaleness() < 100) {
 
-                x = 144 - ((-botpose.getPosition().y * 39.37) + 72);
-                y = (-botpose.getPosition().x * 39.37) + 72;
-                heading = botpose.getOrientation().getYaw(AngleUnit.DEGREES) + 90;
-                heading = MathFunctions.normalizeAngleSigned(Math.toRadians(heading));
+            Pose3D botpose = Lresult.getBotpose();
 
-                if (x != 72 && y != 72) {
+            x = 144 - ((-botpose.getPosition().y * 39.37) + 72);
+            y = (-botpose.getPosition().x * 39.37) + 72;
+            heading = botpose.getOrientation().getYaw(AngleUnit.DEGREES) + 90;
+            heading = MathFunctions.normalizeAngleSigned(Math.toRadians(heading));
+
+            if (x != 72 && y != 72) {
+
+                // Trigger rumble and start timer
+                if (!waitingToResetPose) {
                     gamepad2.rumble(100);
-                    if (gamepad2.right_stick_button && gamepad2.left_stick_button) {
-                        mRobot.mDrive.setPose(new Pose(x, y, heading));
-                    }
+                    poseResetTimer.reset();
+                    waitingToResetPose = true;
+                }
+
+                // After 500 ms automatically reset pose
+                if (waitingToResetPose && poseResetTimer.milliseconds() > 500) {
+                    mRobot.mDrive.setPose(new Pose(x, y, heading));
+                    waitingToResetPose = false;
                 }
             }
+
+        } else {
+            waitingToResetPose = false;
+        }
 
             if (gamepad2.back && gamepad2.b) {
                 Drive.red = true;

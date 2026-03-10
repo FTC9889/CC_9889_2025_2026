@@ -13,6 +13,7 @@ public class ShooterTest extends OpMode {
     public static double shooterVelocity = 0;
     public static double turrentPosition = 0.1;
     public static double hoodPosition = 0.12;
+    public static double intakePower = 0.12;
     @Override
     public void init() {
         mRobot.init(hardwareMap);
@@ -26,11 +27,12 @@ public class ShooterTest extends OpMode {
         mRobot.mShooter.runT2Angle(turrentPosition);
 
         if (gamepad1.aWasPressed()) {
-            mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
+            mRobot.mIntake.setIntakePower(intakePower);
+            mRobot.mIntake.setRequestedGateState(Intake.GateState.OPEN);
         } else if (gamepad1.bWasPressed()) {
             mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
         } else if (gamepad1.yWasPressed()) {
-            mRobot.mIntake.requestState(Intake.TopLevelState.OUTTAKE);
+            mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
         }
 
         telemetry.addLine("press A to turn intake to shoot mode");

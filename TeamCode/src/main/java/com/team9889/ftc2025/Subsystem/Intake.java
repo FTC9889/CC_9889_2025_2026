@@ -1,5 +1,6 @@
 package com.team9889.ftc2025.Subsystem;
 
+import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.MathFunctions;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -11,6 +12,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 public class Intake {
+    Pose redTarget = new Pose(140, 140);
+    Pose blueTarget = new Pose(4, 140);
 
     boolean ballEvent = false;
     boolean lastBallState = false;
@@ -155,7 +158,15 @@ public class Intake {
     public static double intakePower(double goalDistance) {
         double intakePow = 0;
         if (goalDistance > 105) {
-            intakePow = 0.75;
+            intakePow = MathFunctions.clamp(
+                    0.000006060606 * Math.pow(goalDistance, 4)
+                            - 0.002864646 * Math.pow(goalDistance, 3)
+                            + 0.5057576 * Math.pow(goalDistance, 2)
+                            - 39.53992 * goalDistance
+                            + 1156.23074,
+                    0,
+                    1
+            );
         } else {
             intakePow = 1;
         }
@@ -168,7 +179,10 @@ public class Intake {
 
     ElapsedTime outtakeTimer = new ElapsedTime();
     ElapsedTime intakeBallCounter = new ElapsedTime();
-    public void update(double goalDistance) {
+    public void update(Pose robotpose) {
+        double goalDistance = robotpose.distanceFrom(Drive.red ? redTarget : blueTarget);
+        goalDistance -= 8.5;
+
         boolean ballDetected = ballInIntake() == 3;
 
         if (ballDetected && !lastBallState) {

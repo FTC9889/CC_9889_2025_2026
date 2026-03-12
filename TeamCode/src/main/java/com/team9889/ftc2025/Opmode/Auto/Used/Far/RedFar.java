@@ -15,7 +15,7 @@ import com.team9889.ftc2025.Subsystem.Robot;
 import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
 @Disabled
-@Autonomous(name = "🟥RedFar", group = "Red", preselectTeleOp = "Teleop")
+@Autonomous(name = "🟥🔻RedFar", group = "Red", preselectTeleOp = "Teleop")
 public class RedFar extends OpMode {
     Robot mRobot = new Robot();
 

@@ -86,7 +86,7 @@ public class ShooterStateMachine {
         AUTOBF(ShooterState.AUTOF, TurretState.AUTOBF, HoodState.AUTOF),
         DEFAULT(ShooterState.OFF,
                 TurretState.TRACKING,
-                HoodState.DEFAULT);
+                HoodState.READY);
 
         final ShooterState shooterState;
         final TurretState turretState;
@@ -397,10 +397,6 @@ public class ShooterStateMachine {
 
         lastShooterReady = shooterReady;
 
-
-
-
-
 //        FrobotPose = new Pose(
 //                robotpose.getX() + (robotVelocity.getXComponent() * shotTime),
 //                robotpose.getY() + (robotVelocity.getYComponent() * shotTime),
@@ -412,13 +408,14 @@ public class ShooterStateMachine {
         RobotLog.a("goalDistance: " + String.valueOf(goalDistance));
 
         if (limelight.getLatestResult() != null) {
-            limelightAngle = limelight.getLatestResult().getBotpose_MT2().getOrientation().getYaw() + 90;
-            limelightAngle = (limelightAngle % 360 + 360) % 360;
-            Drive.yawOffset = robotpose.getHeading() - limelightAngle;
+            if (limelight.getLatestResult().getStaleness() < 250) {
+                limelightAngle = limelight.getLatestResult().getBotpose_MT2().getOrientation().getYaw() + 90;
+                limelightAngle = (limelightAngle % 360 + 360) % 360;
+                Drive.yawOffset = robotpose.getHeading() - limelightAngle;
 
-            limelightX = robotpose.getX() - (limelight.getLatestResult().getBotpose_MT2().getPosition().x * 39.37);
-            limelightY = robotpose.getY() - (limelight.getLatestResult().getBotpose_MT2().getPosition().y * 39.37);
-
+                limelightX = robotpose.getX() - (limelight.getLatestResult().getBotpose_MT2().getPosition().x * 39.37);
+                limelightY = robotpose.getY() - (limelight.getLatestResult().getBotpose_MT2().getPosition().y * 39.37);
+            }
         }
 
         //Shooter State
@@ -476,25 +473,26 @@ public class ShooterStateMachine {
             }
         }
         //LOOP
-        if (RequestedShooterState == ShooterState.READY) {
-            // Update shooter velocity
+        if (CurrentShooterState == ShooterState.READY) {
             shooterL.setVelocity(shooterVelocity(goalDistance));
             shooterR.setVelocity(shooterVelocity(goalDistance));
-            // Update hood position
-            setHoodPosition(hoodAngle(goalDistance));
-            // Update turret angle
-            runT2Angle(getTurretAngle(robotpose));
-            CurrentShooterState = RequestedShooterState;
-            CurrentHoodState = RequestedHoodState;
-            CurrentTurretState = RequestedTurretState;
         }
 
-        if (RequestedTurretState == TurretState.TRACKING && RequestedHoodState == HoodState.READY) {
-            setHoodPosition(hoodAngle(goalDistance));
-            runT2Angle(getTurretAngle(robotpose));
-            CurrentHoodState = RequestedHoodState;
-            CurrentTurretState = RequestedTurretState;
+        if (CurrentTurretState == TurretState.TRACKING) {
+            runT2Angle(smoothAngle(getTurretAngle(robotpose)));
         }
+
+        if (CurrentHoodState == HoodState.READY) {
+            setHoodPosition(hoodAngle(goalDistance));
+        }
+    }
+
+    double filteredAngle = 0;
+
+    public double smoothAngle(double newAngle) {
+        double alpha = 0.2; // smaller = smoother
+        filteredAngle = filteredAngle + alpha * (newAngle - filteredAngle);
+        return filteredAngle;
     }
 
     public boolean isComplete() {

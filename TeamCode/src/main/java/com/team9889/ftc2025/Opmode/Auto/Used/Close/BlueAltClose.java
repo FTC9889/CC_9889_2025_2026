@@ -15,7 +15,7 @@ import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
 import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
-@Autonomous(name = "🟦BlueAltClose", group = "Blue", preselectTeleOp = "Teleop")
+@Autonomous(name = "🟦⬆️♻️BlueAltClose", group = "Blue", preselectTeleOp = "Teleop")
 public class BlueAltClose extends OpMode {
     Robot mRobot = new Robot();
 

@@ -146,7 +146,7 @@ public class Red2Alt2Far extends OpMode {
 
             case 0:
                 mRobot.mDrive.followPath(ShootPreload);
-                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.);
+//                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.);
 
                 setPathState(1);
 

@@ -30,7 +30,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 public class Teleop extends OpMode {
     Robot mRobot = new Robot();
 
-    boolean shootPress = false;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
 
@@ -51,6 +50,7 @@ public class Teleop extends OpMode {
     @Override
     public void init() {
         mRobot.init(hardwareMap);
+
         mRobot.mDrive.setStartingPose(new Pose(Drive.robotPose.getX(DistanceUnit.INCH), Drive.robotPose.getY(DistanceUnit.INCH), Drive.robotPose.getHeading(AngleUnit.RADIANS)));
 
         telemetry.setMsTransmissionInterval(11);
@@ -138,8 +138,9 @@ public class Teleop extends OpMode {
                 toggle = false;
             }
 
-            if (gamepad1.right_trigger > 0.1) {
+            if (gamepad1.right_trigger > 0.1 && mRobot.mShooter.canShoot) {
                 mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
+                result = true;
             } else if (gamepad2.y) {
                 mRobot.mIntake.requestState(Intake.TopLevelState.OUTTAKE);
                 result = false;
@@ -151,15 +152,11 @@ public class Teleop extends OpMode {
             }
 
 
-            if (gamepad2.rightBumperWasPressed()) {
-                if (!shootPress) {
-                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY);
-                    shootPress = true;
-                } else if (shootPress) {
-                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
-                    mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
-                    shootPress = false;
-                }
+            if (gamepad2.right_bumper) {
+                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY);
+            } else if (gamepad2.left_bumper) {
+                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
+                mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
             }
 
             if (mRobot.mIntake.getBallEvent()) {
@@ -201,9 +198,11 @@ public class Teleop extends OpMode {
 //        telemetry.addLine("********************************");
 //        telemetry.addData("Shooter Velocity", mRobot.mShooter.getShooterVelocity());
 
-        telemetry.addData("robotPose", mRobot.mDrive.getPose());
+//        telemetry.addData("robotPose", mRobot.mDrive.getPose());
         telemetry.addData("intakeEnergy", mRobot.mIntake.intakeL.getCurrent(CurrentUnit.MILLIAMPS));
         telemetry.addData("intakeFrontEnergy", mRobot.mIntake.intakeR.getCurrent(CurrentUnit.MILLIAMPS));
+
+        telemetry.addData("DistanceFromGoal", mRobot.mShooter.getDistanceFromGoal(mRobot.mDrive.getPose()));
 
             drawLimelightPose(x, y, heading, mRobot.mDrive.getPose());
 

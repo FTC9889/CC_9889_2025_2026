@@ -94,7 +94,7 @@ public class ShooterPID extends OpMode {
         {
             press = false;
             mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
-            mRobot.mIntake.setGatePosition(0.55);
+            mRobot.mIntake.setRequestedGateState(Intake.GateState.OPEN);
         } else if (gamepad1.yWasPressed()) {
             mRobot.mIntake.requestState(Intake.TopLevelState.OUTTAKE);
         }
@@ -103,7 +103,7 @@ public class ShooterPID extends OpMode {
             if (error > 200) {
                 mRobot.mIntake.setIntakePower(0);
             } else {
-                mRobot.mIntake.setGatePosition(0.7);
+                mRobot.mIntake.setRequestedGateState(Intake.GateState.CLOSED);
                 mRobot.mIntake.setIntakePower(intakeSpeed);
             }
         }

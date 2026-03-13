@@ -86,7 +86,10 @@ public class ShooterStateMachine {
         AUTOBF(ShooterState.AUTOF, TurretState.AUTOBF, HoodState.AUTOF),
         DEFAULT(ShooterState.OFF,
                 TurretState.TRACKING,
-                HoodState.READY);
+                HoodState.READY),
+        TEST_DEFAULT(ShooterState.OFF,
+                TurretState.TRACKING,
+                HoodState.DEFAULT);
 
         final ShooterState shooterState;
         final TurretState turretState;
@@ -256,7 +259,6 @@ public class ShooterStateMachine {
 
         shooterR.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(50, 0, 0, 15));
         shooterL.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(50, 0, 0, 15));
-
 //        sensor = hardwareMap.get(AnalogInput.class, "potentiometer");
     }
 
@@ -286,7 +288,7 @@ public class ShooterStateMachine {
         angle = MathFunctions.clamp(angle, 98, 270);
 
         // Linear mapping
-        double position = (angle - 98.0) / 172.0;
+        double position = ((angle - 98.0) / 172.0);
 
         turretR.setPosition(position);
         turretL.setPosition(position);
@@ -298,8 +300,10 @@ public class ShooterStateMachine {
 
     public double offsetAngle = 0;
     public double TargetAnge = 0;
-    Pose redTarget = new Pose(140, 140);
-    Pose blueTarget = new Pose(4, 140);
+    Pose redTarget = new Pose(130, 131.5);
+    Pose blueTarget = new Pose(14, 131.5);
+
+    public boolean canShoot = false;
 
     public double getTurretAngle(Pose robotPose) {
         double dx;
@@ -319,13 +323,17 @@ public class ShooterStateMachine {
         double relativeAngle;
 
         relativeAngle = robotAngle - targetAngle;
-
-
         relativeAngle = (relativeAngle % 360 + 360) % 360;
 
         RobotLog.a("robotAngle: " + String.valueOf(robotAngle) +
                 " | TargetAngle: " + String.valueOf(targetAngle) +
                 " | RelativeAngle: " + String.valueOf(relativeAngle));
+
+        if (relativeAngle > 270 || relativeAngle < 98) {
+            canShoot = false;
+        } else {
+            canShoot = true;
+        }
 
         return MathFunctions.clamp(relativeAngle, 98, 270);
     }
@@ -333,47 +341,26 @@ public class ShooterStateMachine {
     public boolean JasonWillRememberNotToAirballAndBecomeStephCurryAndHitTheNightNightDeepThreeAgainstOKCInTheLastPointSixSeconds = false;
 
     public static double shooterVelocity(double goalDistance) {
-        if (goalDistance > 105) {
-            goalDistance -= 18;
-            return -0.00133333 * Math.pow(goalDistance, 4)
-                    + 0.628889 * Math.pow(goalDistance, 3)
-                    - 110.95 * Math.pow(goalDistance, 2)
-                    + 8687.76587 * goalDistance
-                    - 253167.857;
-        } else {
-            return MathFunctions.clamp(
-                    (-0.000115264 * Math.pow(goalDistance, 3))
-                            + (0.0415589 * Math.pow(goalDistance, 2))
-                            + 2.83322 * goalDistance
-                            + 1137.17211,
-                    0,
-                    2000
-            );
-        }
+        return MathFunctions.clamp(
+                0.0000160901 * Math.pow(goalDistance, 4)
+                - 0.00594158 * Math.pow(goalDistance, 3)
+                + 0.763031 * Math.pow(goalDistance, 2)
+                - 33.29185 * goalDistance
+                + 1753.0786,
+                0,
+                2200
+        );
     }
 
     public static double hoodAngle(double goalDistance) {
-        if (goalDistance > 105) {
-            goalDistance -= 18;
-            return MathFunctions.clamp(
-                    -(1.515152e-7) * goalDistance * goalDistance * goalDistance * goalDistance
-                    + 0.00007383838 * goalDistance * goalDistance * goalDistance
-                    - 0.01340227 * goalDistance * goalDistance
-                    + 1.072591 * goalDistance
-                    - 31.88255, 0.005, 0.04
-            );
-
-        } else {
-            return MathFunctions.clamp(
-                    (0.000000000870861 * Math.pow(goalDistance, 4))
-                            - (0.000000436878 * Math.pow(goalDistance, 3))
-                            + (0.000070371 * Math.pow(goalDistance, 2))
-                            - (0.00498223 * goalDistance)
-                            + 0.186651,
-                    0.02,
-                    0.12
-            );
-        }
+        return MathFunctions.clamp(2.4204e-9 * Math.pow(goalDistance, 4)
+                - 8.89975e-7 * Math.pow(goalDistance, 3)
+                + 0.00011796 * Math.pow(goalDistance, 2)
+                - 0.00752694 * goalDistance
+                + 0.254199,
+                0,
+                0.125
+        );
     }
 
     double limelightAngle;
@@ -385,6 +372,11 @@ public class ShooterStateMachine {
 //    Pose FrobotPose;
 
     public boolean shooterReady = false;
+
+    public double getDistanceFromGoal(Pose robotPose) {
+        double goalDistance = robotPose.distanceFrom(Drive.red ? redTarget : blueTarget);
+        return  goalDistance;
+    }
 
     //UPDATE
     public void update(Pose robotpose, Vector robotVelocity, double AngularVelocity) {
@@ -404,7 +396,6 @@ public class ShooterStateMachine {
 //        );
 
         double goalDistance = robotpose.distanceFrom(Drive.red ? redTarget : blueTarget);
-        goalDistance -= 8.5;
         RobotLog.a("goalDistance: " + String.valueOf(goalDistance));
 
         if (limelight.getLatestResult() != null) {

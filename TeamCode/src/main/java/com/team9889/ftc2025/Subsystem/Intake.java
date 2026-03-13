@@ -156,21 +156,15 @@ public class Intake {
 
 
     public static double intakePower(double goalDistance) {
-        double intakePow = 0;
-        if (goalDistance > 105) {
-            intakePow = MathFunctions.clamp(
-                    0.000006060606 * Math.pow(goalDistance, 4)
-                            - 0.002864646 * Math.pow(goalDistance, 3)
-                            + 0.5057576 * Math.pow(goalDistance, 2)
-                            - 39.53992 * goalDistance
-                            + 1156.23074,
-                    0,
-                    1
-            );
-        } else {
-            intakePow = 1;
-        }
-        return MathFunctions.clamp(intakePow, 0, 1);
+        return MathFunctions.clamp(
+                -9.6322e-9 * Math.pow(goalDistance, 4)
+                + 3.81014e-6 * Math.pow(goalDistance, 3)
+                - 0.000500813 * Math.pow(goalDistance, 2)
+                + 0.021813 * goalDistance
+                + 0.712277,
+                0,
+                1
+        );
     }
 
 
@@ -181,7 +175,6 @@ public class Intake {
     ElapsedTime intakeBallCounter = new ElapsedTime();
     public void update(Pose robotpose) {
         double goalDistance = robotpose.distanceFrom(Drive.red ? redTarget : blueTarget);
-        goalDistance -= 8.5;
 
         boolean ballDetected = ballInIntake() == 3;
 
@@ -201,8 +194,10 @@ public class Intake {
         // Intake
         if (RequestedIntakeState != IntakeState.NULL &&
                 RequestedIntakeState != CurrentIntakeState) {
-                setIntakePower(RequestedIntakeState.value);
-            if (RequestedGateState != GateState.OPEN) {
+            if (RequestedIntakeState == IntakeState.ON && RequestedGateState == GateState.CLOSED && ballInIntake() == 3) {
+                intakeL.setPower(0);
+                intakeR.setPower(1);
+            } else if (RequestedGateState != GateState.OPEN) {
                 setIntakePower(RequestedIntakeState.value);
                 CurrentIntakeState = RequestedIntakeState;
                 CurrentGateState = RequestedGateState;
@@ -211,7 +206,10 @@ public class Intake {
                 setGatePosition(GateState.OPEN.value);
                 CurrentIntakeState = RequestedIntakeState;
                 CurrentGateState = RequestedGateState;
+            } else {
+                setIntakePower(RequestedIntakeState.value);
             }
+
         }
 
         rumble = rumble(ballInIntake());

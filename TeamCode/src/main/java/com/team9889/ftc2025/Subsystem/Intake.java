@@ -45,6 +45,7 @@ public class Intake {
         INTAKE(IntakeState.ON, GateState.CLOSED),
         KEEP(IntakeState.SLOW, GateState.CLOSED),
         SHOOT(IntakeState.ON, GateState.OPEN),
+        AUTO_SHOOT(IntakeState.ON, GateState.OPEN),
         OUTTAKE(IntakeState.OUTTAKE, GateState.OPEN),
         OFF(IntakeState.OFF, GateState.CLOSED),
         SLOW(IntakeState.SLOW, GateState.CLOSED)
@@ -61,6 +62,7 @@ public class Intake {
 
     public enum IntakeState{
         ON(1),
+        AUTO_SHOOT(1),
         OFF(0),
         SLOW(0.2),
         OUTTAKE(-1),
@@ -79,6 +81,8 @@ public class Intake {
             switch (this) {
                 case ON:
                     return "ON";
+                case AUTO_SHOOT:
+                    return "AUTO_SHOOT";
                 case OFF:
                     return "OFF";
                 case SLOW:
@@ -157,11 +161,11 @@ public class Intake {
 
     public static double intakePower(double goalDistance) {
         return MathFunctions.clamp(
-                -9.6322e-9 * Math.pow(goalDistance, 4)
-                + 3.81014e-6 * Math.pow(goalDistance, 3)
-                - 0.000500813 * Math.pow(goalDistance, 2)
-                + 0.021813 * goalDistance
-                + 0.712277,
+                1.4991e-8 * Math.pow(goalDistance, 4)
+                        - 4.35809e-6 * Math.pow(goalDistance, 3)
+                        + 0.000375634 * Math.pow(goalDistance, 2)
+                        - 0.011593 * goalDistance
+                        + 1.1087,
                 0,
                 1
         );
@@ -194,7 +198,11 @@ public class Intake {
         // Intake
         if (RequestedIntakeState != IntakeState.NULL &&
                 RequestedIntakeState != CurrentIntakeState) {
-            if (RequestedIntakeState == IntakeState.ON && RequestedGateState == GateState.CLOSED && ballInIntake() == 3) {
+            if (RequestedIntakeState == IntakeState.AUTO_SHOOT) {
+                setIntakePower(1);
+                setGatePosition(GateState.OPEN.value);
+                CurrentIntakeState = RequestedIntakeState;
+            } else if (RequestedIntakeState == IntakeState.ON && RequestedGateState == GateState.CLOSED && ballInIntake() == 3) {
                 intakeL.setPower(0);
                 intakeR.setPower(1);
             } else if (RequestedGateState != GateState.OPEN) {
@@ -209,7 +217,6 @@ public class Intake {
             } else {
                 setIntakePower(RequestedIntakeState.value);
             }
-
         }
 
         rumble = rumble(ballInIntake());

@@ -86,6 +86,10 @@ public class ShooterStateMachine {
         AUTOB2(ShooterState.AUTO2, TurretState.AUTOB2, HoodState.AUTO2),
         AUTORF(ShooterState.AUTOF, TurretState.AUTORF, HoodState.AUTOF),
         AUTOBF(ShooterState.AUTOF, TurretState.AUTOBF, HoodState.AUTOF),
+        AUTORS(ShooterState.AUTO2ALTCLOSE, TurretState.AUTORS, HoodState.AUTO2ALTCLOSE),
+        AUTOBS(ShooterState.AUTO2ALTCLOSE, TurretState.AUTOBS, HoodState.AUTO2ALTCLOSE),
+        AUTORS2(ShooterState.AUTO2, TurretState.AUTORS, HoodState.AUTO2),
+        AUTOBS2(ShooterState.AUTO2, TurretState.AUTOBS, HoodState.AUTO2),
         DEFAULT(ShooterState.OFF,
                 TurretState.TRACKING,
                 HoodState.READY),
@@ -162,6 +166,8 @@ public class ShooterStateMachine {
         AUTOB2(138.5),
         AUTORF(203),
         AUTOBF(157),
+        AUTORS(260),
+        AUTOBS(100),
         NULL(0);
 
         private final double value;
@@ -199,6 +205,10 @@ public class ShooterStateMachine {
                 case AUTORF:
                     return "AUTORF";
                 case AUTOBF:
+                    return "AUTOBF";
+                case AUTORS:
+                    return "AUTORF";
+                case AUTOBS:
                     return "AUTOBF";
                 case NULL:
                 default:
@@ -319,43 +329,86 @@ public class ShooterStateMachine {
 
     public boolean canShoot = false;
 
+    public boolean AutoTurretPredict = false;
+
+    public Pose AutoTurretPredictPose = new Pose();
+
     public double getTurretAngle(Pose robotPose) {
-        double Xt;
-        double Yt;
+        if (AutoTurretPredict) {
+            double Xt;
+            double Yt;
 
-        Xt = robotPose.getX() - 2*Math.cos(robotPose.getHeading());
-        Yt = robotPose.getY() - 2*Math.sin(robotPose.getHeading());
+            Xt = AutoTurretPredictPose.getX() - 2 * Math.cos(AutoTurretPredictPose.getHeading());
+            Yt = AutoTurretPredictPose.getY() - 2 * Math.sin(AutoTurretPredictPose.getHeading());
 
-        double dx;
-        double targetY = 130;
+            double dx;
+            double targetY = 130;
 
-        if (Drive.red) {
-            dx = 130 - Xt;
+            if (Drive.red) {
+                dx = 130 - Xt;
+            } else {
+                dx = 14 - Xt;
+            }
+
+            double dy = targetY - Yt;
+
+            double targetAngle = Math.toDegrees(Math.atan2(dy, dx));
+            double robotAngle = Math.toDegrees(AutoTurretPredictPose.getHeading());
+            robotAngle = (robotAngle % 360 + 360) % 360;
+            double relativeAngle;
+
+            relativeAngle = robotAngle - targetAngle;
+            relativeAngle = (relativeAngle % 360 + 360) % 360;
+
+            RobotLog.a("robotAngle: " + String.valueOf(robotAngle) +
+                    " | TargetAngle: " + String.valueOf(targetAngle) +
+                    " | RelativeAngle: " + String.valueOf(relativeAngle));
+
+            if (relativeAngle > 270 || relativeAngle < 98) {
+                canShoot = false;
+            } else {
+                canShoot = true;
+            }
+
+            return MathFunctions.clamp(relativeAngle, 98, 270);
         } else {
-            dx =  14 - Xt;
+            double Xt;
+            double Yt;
+
+            Xt = robotPose.getX() - 2 * Math.cos(robotPose.getHeading());
+            Yt = robotPose.getY() - 2 * Math.sin(robotPose.getHeading());
+
+            double dx;
+            double targetY = 130;
+
+            if (Drive.red) {
+                dx = 130 - Xt;
+            } else {
+                dx = 14 - Xt;
+            }
+
+            double dy = targetY - Yt;
+
+            double targetAngle = Math.toDegrees(Math.atan2(dy, dx));
+            double robotAngle = Math.toDegrees(robotPose.getHeading());
+            robotAngle = (robotAngle % 360 + 360) % 360;
+            double relativeAngle;
+
+            relativeAngle = robotAngle - targetAngle;
+            relativeAngle = (relativeAngle % 360 + 360) % 360;
+
+            RobotLog.a("robotAngle: " + String.valueOf(robotAngle) +
+                    " | TargetAngle: " + String.valueOf(targetAngle) +
+                    " | RelativeAngle: " + String.valueOf(relativeAngle));
+
+            if (relativeAngle > 270 || relativeAngle < 98) {
+                canShoot = false;
+            } else {
+                canShoot = true;
+            }
+
+            return MathFunctions.clamp(relativeAngle, 98, 270);
         }
-
-        double dy = targetY - Yt;
-
-        double targetAngle = Math.toDegrees(Math.atan2(dy, dx));
-        double robotAngle = Math.toDegrees(robotPose.getHeading());
-        robotAngle = (robotAngle % 360 + 360) % 360;
-        double relativeAngle;
-
-        relativeAngle = robotAngle - targetAngle;
-        relativeAngle = (relativeAngle % 360 + 360) % 360;
-
-        RobotLog.a("robotAngle: " + String.valueOf(robotAngle) +
-                " | TargetAngle: " + String.valueOf(targetAngle) +
-                " | RelativeAngle: " + String.valueOf(relativeAngle));
-
-        if (relativeAngle > 270 || relativeAngle < 98) {
-            canShoot = false;
-        } else {
-            canShoot = true;
-        }
-
-        return MathFunctions.clamp(relativeAngle, 98, 270);
     }
 
     public boolean JasonWillRememberNotToAirballAndBecomeStephCurryAndHitTheNightNightDeepThreeAgainstOKCInTheLastPointSixSeconds = false;

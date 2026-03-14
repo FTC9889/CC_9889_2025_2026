@@ -24,33 +24,45 @@ public class RedCloseTest extends OpMode {
     private Paths paths;
 
     ElapsedTime shotTimer = new ElapsedTime();
+    ElapsedTime waitTImer = new ElapsedTime();
 
     /* ---------------- FLIPPED POSES WITH +180° HEADINGS ---------------- */
 
     private final Pose startPose   = new Pose(118.304, 129.149, Math.toRadians(220));   // 37 + 180
     private final Pose shootPreload= new Pose(88.000, 103.000);
     private final Pose turn        = new Pose(98, 83.832);
-    private final Pose pickUp1     = new Pose(125, 83.832);
-    private final Pose gateControl = new Pose(120, 75);
-    private final Pose gate1       = new Pose(120, 58.701);
-    private final Pose gate2       = new Pose(124, 73.7);
-    private final Pose shoot1      = new Pose(88.000, 103.000);
-    private final Pose pickUp2     = new Pose(131.373, 58.701);
-    private final Pose control2    = new Pose(83.654, 58.680);
+    private final Pose pickUp1     = new Pose(123, 83.832);
+    private final Pose gateControl = new Pose(120, 58.701);
+    private final Pose gate2       = new Pose(129.5, 73.7);
+
+    private final Pose shoot1      = new Pose(90.5, 91.7);
+    private final Pose shoot1Con      = new Pose(90.5, 83.832);
+
+    private final Pose pickUp2     = new Pose(129.5, 58.701);
+    private final Pose control2    = new Pose(79.654, 60);
     private final Pose shoot2      = new Pose(83.920, 72.924);
-    private final Pose pickup3     = new Pose(92, 36);
-    private final Pose control3    = new Pose(83.5, 36);
-    private final Pose pickup3_2   = new Pose(131.5, 36);
+    private final Pose pickup3     = new Pose(128.00, 36);
+    private final Pose control3    = new Pose(83.7695, 32.629);
     private final Pose shoot3      = new Pose(83.920, 72.924);
-    private final Pose pickup4     = new Pose(133.5, 52.8);
-    private final Pose pickup4_2   = new Pose(133.5, 9.5);
-    private final Pose shoot4     = new Pose(133.5, 52.8);
-    private final Pose shoot4_2   = new Pose(84.3, 72.924);
-    private final Pose park        = new Pose(84.3, 58.8);
+    private final Pose shoot3Con1      = new Pose(118.7, 36.1);
+    private final Pose shoot3Con2      = new Pose(83.6, 45.6);
+    private final Pose pickup4     = new Pose(128, 40);
+    private final Pose pickup4Con1     = new Pose(83.7, 67.789);
+    private final Pose pickup4Con2     = new Pose(132, 68);
+
+    private final Pose pickup4_2   = new Pose(135, 10.5);
+    private final Pose shoot4     = new Pose(83.920, 72.924);
+    private final Pose shoot4Con1     = new Pose(110.1, 35.1);
+    private final Pose shoot4Con2     = new Pose(83.9, 38.3);
+
+    private final Pose pickup5     = new Pose(130, 9);
+
+    private final Pose park        = new Pose(100, 69);
 
 
     @Override
     public void init() {
+        mRobot.mShooter.AutoTurretPredict = true;
         Drive.red = true;
         mRobot.init(hardwareMap);
 
@@ -86,150 +98,163 @@ public class RedCloseTest extends OpMode {
         switch (pathState) {
             case 0:
                 mRobot.mDrive.followPath(paths.ShootPreload);
-                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOR1);
-                setPathState(101);
+                mRobot.mShooter.AutoTurretPredictPose = paths.ShootPreload.endPose();
+                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY);
+                setPathState(1);
                 break;
-            case 101:
+            case 1:
                 if (!mRobot.mDrive.isBusy() && mRobot.isComplete()) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
                     shotTimer.reset();
-                    setPathState(1);
+                    setPathState(2);
                 }
                 break;
-            case 1:
+            case 2:
                 RobotLog.a("RobotC", mRobot.isComplete());
                 RobotLog.a("timer", shotTimer);
                 if (mRobot.isComplete() && shotTimer.milliseconds() > 1000){
                     mRobot.mDrive.followPath(paths.Pickup1);
                     mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
-                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOR1);
-                    setPathState(1001);
-                }
-                break;
-            case 1001:
-                if (mRobot.isComplete()) {
-                    mRobot.mDrive.followPath(paths.Turn);
-                    setPathState(1002);
-                }
-                break;
-            case 1002:
-                if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mDrive.followPath(paths.Pickup1);
-                    setPathState(2);
-                }
-                break;
-            case 2:
-                if (mRobot.isComplete() && !mRobot.mDrive.isBusy()) {
-                    mRobot.mDrive.followPath(paths.Shoot1);
-                    setPathState(21);
-                }
-                break;
-            case 21:
-                if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
-                    shotTimer.reset();
+//                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTO2CLOSER);
                     setPathState(3);
                 }
                 break;
             case 3:
-                if (mRobot.mIntake.isComplete() && shotTimer.milliseconds() > 1000) {
-                    mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
-                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOR2);
-                    mRobot.mDrive.followPath(paths.Pickup2);
-                    setPathState(1003);
-                }
-                break;
-            case 1003:
-                if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mDrive.followPath(paths.Gate1);
-                    setPathState(1004);
-                }
-                break;
-            case 1004:
-                if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mDrive.followPath(paths.Gate2);
+                if (mRobot.isComplete()) {
+                    mRobot.mDrive.followPath(paths.Turn);
                     setPathState(4);
                 }
                 break;
             case 4:
-                if (!mRobot.mDrive.isBusy() && mRobot.isComplete()) {
-                    mRobot.mDrive.followPath(paths.Shoot2);
-                    setPathState(51);
-                }
-                break;
-            case 51:
                 if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
-                    shotTimer.reset();
+                    mRobot.mDrive.followPath(paths.Pickup1);
                     setPathState(5);
                 }
                 break;
             case 5:
-                if (!mRobot.mDrive.isBusy() && shotTimer.milliseconds() > 1000) {
-                    mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
-                    mRobot.mDrive.followPath(paths.Pickup3);
+                if (mRobot.isComplete() && !mRobot.mDrive.isBusy()) {
+                    mRobot.mIntake.intakeL.setPower(0);
+                    mRobot.mShooter.AutoTurretPredictPose = paths.Shoot1.endPose();
+                    mRobot.mDrive.followPath(paths.Shoot1);
                     setPathState(6);
                 }
                 break;
             case 6:
                 if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mDrive.followPath(paths.Pickup3_2);
+                    mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
+                    mRobot.mIntake.intakeL.setPower(1);
+                    shotTimer.reset();
                     setPathState(7);
                 }
                 break;
             case 7:
-                if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mDrive.followPath(paths.Shoot3);
+                if (mRobot.mIntake.isComplete() && shotTimer.milliseconds() > 1000) {
+                    mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
+//                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOR2);
+                    mRobot.mDrive.followPath(paths.Pickup2);
                     setPathState(8);
                 }
                 break;
             case 8:
                 if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
-                    shotTimer.reset();
+                    mRobot.mDrive.followPath(paths.Gate1);
+                    waitTImer.reset();
                     setPathState(9);
                 }
                 break;
             case 9:
-                if (!mRobot.mDrive.isBusy() && shotTimer.milliseconds() > 1000) {
-                    mRobot.mDrive.followPath(paths.Pickup4);
+                if (!mRobot.mDrive.isBusy() && mRobot.isComplete() && waitTImer.milliseconds() > 400) {
+                    mRobot.mIntake.intakeL.setPower(0);
+                    mRobot.mDrive.followPath(paths.Shoot2);
+                    mRobot.mShooter.AutoTurretPredictPose = paths.Shoot2.endPose();
                     setPathState(10);
                 }
                 break;
             case 10:
                 if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
-                    mRobot.mDrive.followPath(paths.Pickup4_2);
+                    mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
+                    mRobot.mIntake.intakeL.setPower(1);
+                    shotTimer.reset();
                     setPathState(11);
                 }
                 break;
             case 11:
-                if (!mRobot.mDrive.isBusy() && mRobot.isComplete()) {
-                    mRobot.mDrive.followPath(paths.Shoot4);
+                if (!mRobot.mDrive.isBusy() && shotTimer.milliseconds() > 1000) {
+                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY);
+                    mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
+                    mRobot.mDrive.followPath(paths.Pickup3);
                     setPathState(12);
                 }
                 break;
             case 12:
                 if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mDrive.followPath(paths.Shoot4_2);
+//                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTORS2);
+                    mRobot.mIntake.intakeL.setPower(0);
+                    mRobot.mShooter.AutoTurretPredictPose = paths.Shoot3.endPose();
+                    mRobot.mDrive.followPath(paths.Shoot3);
                     setPathState(13);
                 }
                 break;
             case 13:
                 if (!mRobot.mDrive.isBusy()) {
-                    shotTimer.reset();
                     mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
+                    mRobot.mIntake.intakeL.setPower(1);
+                    shotTimer.reset();
                     setPathState(14);
                 }
                 break;
             case 14:
-                if (shotTimer.milliseconds() > 1000) {
-                    mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
-                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
+                if (!mRobot.mDrive.isBusy() && shotTimer.milliseconds() > 1000) {
+                    mRobot.mDrive.followPath(paths.Pickup4);
                     setPathState(15);
                 }
                 break;
             case 15:
+                if (!mRobot.mDrive.isBusy()) {
+                    mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
+                    mRobot.mDrive.followPath(paths.Pickup4_2);
+                    waitTImer.reset();
+                    setPathState(16);
+                }
+                break;
+            case 16:
+                if ((!mRobot.mDrive.isBusy() && mRobot.isComplete()) || waitTImer.milliseconds() > 1500) {
+                    mRobot.mIntake.intakeL.setPower(0);
+                    mRobot.mShooter.AutoTurretPredictPose = paths.Shoot4.endPose();
+                    mRobot.mDrive.followPath(paths.Shoot4);
+                    setPathState(17);
+                }
+                break;
+            case 17:
+                if (!mRobot.mDrive.isBusy()) {
+                    shotTimer.reset();
+                    mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
+                    mRobot.mIntake.intakeL.setPower(1);
+                    setPathState(18);
+                }
+                break;
+            case 18:
+                if (shotTimer.milliseconds() > 1000) {
+                    mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
+                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
+                    setPathState(19);
+                }
+                break;
+            case 19:
+                if (!mRobot.mDrive.isBusy()) {
+                    mRobot.mDrive.followPath(paths.Pickup5);
+                    setPathState(20);
+                }
+                break;
+            case 20:
+                if (!mRobot.mDrive.isBusy()) {
+                    mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
+                    mRobot.mDrive.followPath(paths.Pickup5_2);
+                    waitTImer.reset();
+                    setPathState(21);
+                }
+                break;
+            case 21:
                 mRobot.mDrive.followPath(paths.Park);
                 setPathState(-1000);
                 break;
@@ -242,7 +267,7 @@ public class RedCloseTest extends OpMode {
     }
 
     public class Paths {
-        public PathChain ShootPreload, Turn, Pickup1, Gate1, Gate2,  Shoot1, Pickup2, Shoot2, Pickup3, Pickup3_2, Shoot3, Pickup4, Pickup4_2, Shoot4, Shoot4_2, Park;
+        public PathChain ShootPreload, Turn, Pickup1, Gate1,  Shoot1, Pickup2, Shoot2, Pickup3, Pickup5, Pickup5_2, Shoot3, Pickup4, Pickup4_2, Shoot4, Shoot5, Park;
 
         public Paths(Follower follower) {
 
@@ -262,19 +287,14 @@ public class RedCloseTest extends OpMode {
                     .build();
 
             Gate1 = follower.pathBuilder()
-                    .addPath(new BezierCurve(pickUp2,gateControl, gate1))
+                    .addPath(new BezierCurve(pickUp2,gateControl, gate2))
                     .setTangentHeadingInterpolation()
                     .setReversed()
                     .build();
 
-            Gate2 = follower.pathBuilder()
-                    .addPath(new BezierLine(gate1, gate2))
-                    .setConstantHeadingInterpolation(Math.toRadians(270))
-                    .build();
-
             Shoot1 = follower.pathBuilder()
-                    .addPath(new BezierLine(gate2, shoot1))
-                    .setConstantHeadingInterpolation(Math.toRadians(270)) // -175 + 180 = 5
+                    .addPath(new BezierLine(pickUp1, shoot1))
+                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270)) // -175 + 180 = 5
                     .build();
 
             Pickup2 = follower.pathBuilder()
@@ -283,8 +303,8 @@ public class RedCloseTest extends OpMode {
                     .build();
 
             Shoot2 = follower.pathBuilder()
-                    .addPath(new BezierLine(pickUp2, shoot2))
-                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270)) // -180 + 180 = 0
+                    .addPath(new BezierLine(gate2, shoot2))
+                    .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(270)) // -180 + 180 = 0
                     .build();
 
             Pickup3 = follower.pathBuilder()
@@ -292,38 +312,47 @@ public class RedCloseTest extends OpMode {
                     .setTangentHeadingInterpolation()
                     .build();
 
-            Pickup3_2 = follower.pathBuilder()
-                    .addPath(new BezierLine(pickup3, pickup3_2))
-                    .setTangentHeadingInterpolation()
-                    .build();
-
             Shoot3 = follower.pathBuilder()
-                    .addPath(new BezierLine(pickup3_2, shoot3))
-                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270))
+                    .addPath(new BezierCurve(pickup3, shoot3Con1, shoot3Con2, shoot3))
+                    .setTangentHeadingInterpolation()
+                    .setReversed()
                     .build();
 
             Pickup4 = follower.pathBuilder()
-                    .addPath(new BezierLine(shoot3, pickup4))
-                    .setConstantHeadingInterpolation(Math.toRadians(270))
+                    .addPath(new BezierCurve(shoot3, pickup4Con1, pickup4Con2, pickup4))
+                    .setTangentHeadingInterpolation()
                     .build();
 
             Pickup4_2 = follower.pathBuilder()
                     .addPath(new BezierLine(pickup4, pickup4_2))
-                    .setConstantHeadingInterpolation(Math.toRadians(270))
+                    .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(280))
                     .build();
 
             Shoot4 = follower.pathBuilder()
-                    .addPath(new BezierLine(pickup4_2, shoot4))
-                    .setConstantHeadingInterpolation(Math.toRadians(270))
+                    .addPath(new BezierCurve(pickup4_2, shoot4Con1, shoot4Con2, shoot4))
+                    .setTangentHeadingInterpolation()
+                    .setReversed()
                     .build();
 
-            Shoot4_2 = follower.pathBuilder()
-                    .addPath(new BezierLine(shoot4, shoot4_2))
-                    .setConstantHeadingInterpolation(Math.toRadians(270))
+            Pickup5 = follower.pathBuilder()
+                    .addPath(new BezierCurve(shoot3, pickup4Con1, pickup4Con2, pickup5))
+                    .setTangentHeadingInterpolation()
                     .build();
+
+            Pickup5_2 = follower.pathBuilder()
+                    .addPath(new BezierLine(pickup5, pickup4_2))
+                    .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(280))
+                    .build();
+
+
+            Shoot5 = follower.pathBuilder()
+                    .addPath(new BezierCurve(pickup4_2, shoot4Con1, shoot4Con2, shoot4))
+                    .setTangentHeadingInterpolation()
+                    .build();
+
 
             Park = follower.pathBuilder()
-                    .addPath(new BezierLine(shoot4_2, park))
+                    .addPath(new BezierLine(shoot4, park))
                     .setTangentHeadingInterpolation()
                     .build();
         }

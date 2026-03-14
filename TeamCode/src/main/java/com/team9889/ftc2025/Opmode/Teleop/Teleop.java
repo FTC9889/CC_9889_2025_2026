@@ -51,6 +51,8 @@ public class Teleop extends OpMode {
     public void init() {
         mRobot.init(hardwareMap);
 
+        mRobot.mShooter.AutoTurretPredict = false;
+
         mRobot.mDrive.setStartingPose(Drive.robotPose);
 
         telemetry.setMsTransmissionInterval(11);
@@ -124,7 +126,7 @@ public class Teleop extends OpMode {
                 Drive.red = false;
             }
 
-            if (gamepad1.left_trigger > 0.1) {
+            if (gamepad1.left_trigger > 0.1 || (gamepad2.right_trigger > 0.1 && gamepad2.left_trigger > 0.1)) {
                 mRobot.mDrive.setTeleOpDrive(
                         -gamepad1.left_stick_y * 0.15,
                         -gamepad1.left_stick_x  * 0.25,
@@ -168,7 +170,7 @@ public class Teleop extends OpMode {
                 mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
             }
 
-            if (mRobot.mIntake.getBallEvent()) {
+            if (mRobot.mIntake.getBallEvent() && mRobot.mIntake.getCurrentIntakeState() == Intake.IntakeState.ON && mRobot.mIntake.getCurrentGateState() == Intake.GateState.CLOSED) {
                 gamepad1.rumble(500);
                 mRobot.mIntake.requestState(Intake.TopLevelState.KEEP);
             }

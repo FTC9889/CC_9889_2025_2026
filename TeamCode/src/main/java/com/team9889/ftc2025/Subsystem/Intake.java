@@ -214,6 +214,9 @@ public class Intake {
                 setGatePosition(GateState.OPEN.value);
                 CurrentIntakeState = RequestedIntakeState;
                 CurrentGateState = RequestedGateState;
+            } else if (RequestedIntakeState == IntakeState.SLOW) {
+                intakeL.setPower(0);
+                intakeR.setPower(1);
             } else {
                 setIntakePower(RequestedIntakeState.value);
             }
@@ -273,7 +276,7 @@ public class Intake {
     }
 
     public boolean getBallEvent() {
-        return ballEvent;
+        return intakeL.getCurrent(CurrentUnit.MILLIAMPS) > 5500;
     }
 }
 

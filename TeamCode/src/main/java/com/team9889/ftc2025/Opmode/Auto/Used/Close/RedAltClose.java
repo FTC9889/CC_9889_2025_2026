@@ -94,9 +94,9 @@ public class RedAltClose extends OpMode {
         telemetry.addData("X", mRobot.mDrive.getPose().getX());
         telemetry.addData("Y", mRobot.mDrive.getPose().getY());
         telemetry.addData("Heading", Math.toDegrees(mRobot.mDrive.getPose().getHeading()));
-        telemetry.addData("IntakeRequestedState", mRobot.mIntake.getRequestedFrontIntakeState());
-        telemetry.addData("IntakeBackCurrentState", mRobot.mIntake.getCurrentBackIntakeState());
-        telemetry.addData("IntakeFrontCurrentState", mRobot.mIntake.getCurrentFrontIntakeState());
+//        telemetry.addData("IntakeRequestedState", mRobot.mIntake.getRequestedFrontIntakeState());
+//        telemetry.addData("IntakeBackCurrentState", mRobot.mIntake.getCurrentBackIntakeState());
+//        telemetry.addData("IntakeFrontCurrentState", mRobot.mIntake.getCurrentFrontIntakeState());
         telemetry.addLine("---------------------------------");
 
         telemetry.addData("GateRequestedState", mRobot.mIntake.getRequestedGateState());

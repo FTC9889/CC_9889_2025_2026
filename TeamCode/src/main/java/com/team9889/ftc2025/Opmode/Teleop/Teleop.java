@@ -126,9 +126,9 @@ public class Teleop extends OpMode {
 
             if (gamepad1.left_trigger > 0.1) {
                 mRobot.mDrive.setTeleOpDrive(
-                        -gamepad1.left_stick_y / 2,
-                        -gamepad1.left_stick_x / 2,
-                        -gamepad1.right_stick_x / 2,
+                        -gamepad1.left_stick_y * 0.15,
+                        -gamepad1.left_stick_x  * 0.25,
+                        -gamepad1.right_stick_x  * 0.15,
                         true
                 );
             } else {

@@ -51,7 +51,7 @@ public class Teleop extends OpMode {
     public void init() {
         mRobot.init(hardwareMap);
 
-        mRobot.mDrive.setStartingPose(new Pose(Drive.robotPose.getX(DistanceUnit.INCH), Drive.robotPose.getY(DistanceUnit.INCH), Drive.robotPose.getHeading(AngleUnit.RADIANS)));
+        mRobot.mDrive.setStartingPose(Drive.robotPose);
 
         telemetry.setMsTransmissionInterval(11);
 
@@ -170,7 +170,7 @@ public class Teleop extends OpMode {
 
             if (mRobot.mIntake.getBallEvent()) {
                 gamepad1.rumble(500);
-                mRobot.mIntake.requestState(Intake.TopLevelState.SLOW);
+                mRobot.mIntake.requestState(Intake.TopLevelState.KEEP);
             }
 
             if (mRobot.mShooter.getShooterReadyEvent()) {

@@ -70,11 +70,8 @@ public class Drive {
     public static double yOffset = 0;
     public static double yawOffset = 0;
 
-    public static Pose2D robotPose = new Pose2D(DistanceUnit.INCH, 0 - xOffset, 0 - yOffset, AngleUnit.DEGREES, 0 - yawOffset);
-    public  Pose2D getPose() {
-        robotPose = pinpoint.getPosition();
-        return robotPose;
-    }
+    public static Pose robotPose = new Pose( 0, 0, Math.toRadians(0));
+
 
     public  static boolean red = false;
 }

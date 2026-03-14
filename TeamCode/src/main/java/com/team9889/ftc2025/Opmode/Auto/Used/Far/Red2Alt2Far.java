@@ -158,7 +158,7 @@ public class Red2Alt2Far extends OpMode {
                     shotTimer.reset();
                     mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
 
-                    setPathState(111);
+                    setPathState(-1);
                 }
 
                 break;

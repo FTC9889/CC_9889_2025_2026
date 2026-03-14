@@ -78,6 +78,8 @@ public class ShooterStateMachine {
                 HoodState.READY),
         AUTOCLOSER(ShooterState.AUTOALTCLOSE, TurretState.AUTOCLOSEALTR, HoodState.AUTOALTCLOSE),
         AUTOCLOSEB(ShooterState.AUTOALTCLOSE, TurretState.AUTOCLOSEALTB, HoodState.AUTOALTCLOSE),
+        AUTO2CLOSER(ShooterState.AUTO2ALTCLOSE, TurretState.AUTO2CLOSEALTR, HoodState.AUTO2ALTCLOSE),
+        AUTO2CLOSEB(ShooterState.AUTO2ALTCLOSE, TurretState.AUTO2CLOSEALTB, HoodState.AUTO2ALTCLOSE),
         AUTOR1(ShooterState.AUTO1, TurretState.AUTOR1, HoodState.AUTO1),
         AUTOR2(ShooterState.AUTO2, TurretState.AUTOR2, HoodState.AUTO2),
         AUTOB1(ShooterState.AUTO1, TurretState.AUTOB1, HoodState.AUTO1),
@@ -108,7 +110,8 @@ public class ShooterStateMachine {
         READY(0),
         OFF(0),
         AUTOALTCLOSE(1525),
-        AUTO1(1300),
+        AUTO2ALTCLOSE(1400),
+        AUTO1(1350),
         AUTO2(1550),
         AUTOF(1900),
         NULL(0);
@@ -131,6 +134,8 @@ public class ShooterStateMachine {
                     return "OFF";
                 case AUTOALTCLOSE:
                     return "AUTOALTCLOSE";
+                case AUTO2ALTCLOSE:
+                    return "AUTO2ALTCLOSE";
                 case AUTO1:
                     return "AUTO1";
                 case AUTO2:
@@ -149,6 +154,8 @@ public class ShooterStateMachine {
         OFF(0),
         AUTOCLOSEALTR(255),
         AUTOCLOSEALTB(155),
+        AUTO2CLOSEALTR(270),
+        AUTO2CLOSEALTB(90),
         AUTOR1(240),
         AUTOR2(221.5),
         AUTOB1(120),
@@ -181,6 +188,10 @@ public class ShooterStateMachine {
                     return "AUTOCLOSEALTR";
                 case AUTOCLOSEALTB:
                     return "AUTOCLOSEALTB";
+                case AUTO2CLOSEALTR:
+                    return "AUTO2CLOSEALTR";
+                case AUTO2CLOSEALTB:
+                    return "AUTO2CLOSEALTB";
                 case AUTOB1:
                     return "AUTOB1";
                 case AUTOB2:
@@ -200,7 +211,8 @@ public class ShooterStateMachine {
         READY(0.12),
         DEFAULT(0.12),
         AUTOALTCLOSE(0.055),
-        AUTO1(0.075),
+        AUTO2ALTCLOSE(0.07),
+        AUTO1(0.07),
         AUTO2(0.05),
         AUTOF(0.023),
         NULL(0);
@@ -223,6 +235,8 @@ public class ShooterStateMachine {
                     return "DEFAULT";
                 case AUTOALTCLOSE:
                     return "AUTOALTCLOSE";
+                case AUTO2ALTCLOSE:
+                    return "AUTO2ALTCLOSE";
                 case AUTO1:
                     return "AUTO1";
                 case AUTO2:
@@ -306,16 +320,22 @@ public class ShooterStateMachine {
     public boolean canShoot = false;
 
     public double getTurretAngle(Pose robotPose) {
+        double Xt;
+        double Yt;
+
+        Xt = robotPose.getX() - 2*Math.cos(robotPose.getHeading());
+        Yt = robotPose.getY() - 2*Math.sin(robotPose.getHeading());
+
         double dx;
-        double targetY = 140;
+        double targetY = 130;
 
         if (Drive.red) {
-            dx = 140 - robotPose.getX();
+            dx = 130 - Xt;
         } else {
-            dx =  4 - robotPose.getX();
+            dx =  14 - Xt;
         }
 
-        double dy = targetY - robotPose.getY();
+        double dy = targetY - Yt;
 
         double targetAngle = Math.toDegrees(Math.atan2(dy, dx));
         double robotAngle = Math.toDegrees(robotPose.getHeading());
@@ -413,7 +433,8 @@ public class ShooterStateMachine {
         if (RequestedShooterState == ShooterState.AUTO1 ||
                 RequestedShooterState == ShooterState.AUTO2 ||
                 RequestedShooterState == ShooterState.AUTOF ||
-        RequestedShooterState == ShooterState.AUTOALTCLOSE) {
+        RequestedShooterState == ShooterState.AUTOALTCLOSE
+        || RequestedShooterState == ShooterState.AUTO2ALTCLOSE) {
             setShooterVelocity(RequestedShooterState.value);
             CurrentShooterState = RequestedShooterState;
         } else if (RequestedShooterState != CurrentShooterState) {
@@ -443,6 +464,8 @@ public class ShooterStateMachine {
                 || RequestedTurretState == TurretState.AUTOBF
                         || RequestedTurretState == TurretState.AUTOCLOSEALTB
                         || RequestedTurretState == TurretState.AUTOCLOSEALTR
+                        || RequestedTurretState == TurretState.AUTO2CLOSEALTB
+                        || RequestedTurretState == TurretState.AUTO2CLOSEALTR
         ) {
             runT2Angle(RequestedTurretState.value);
             CurrentTurretState = RequestedTurretState;
@@ -459,7 +482,8 @@ public class ShooterStateMachine {
         if (RequestedHoodState == HoodState.AUTO1
                 || RequestedHoodState == HoodState.AUTO2
                 || RequestedHoodState == HoodState.AUTOF
-        || RequestedHoodState == HoodState.AUTOALTCLOSE) {
+        || RequestedHoodState == HoodState.AUTOALTCLOSE
+        || RequestedHoodState == HoodState.AUTO2ALTCLOSE) {
             setHoodPosition(RequestedHoodState.value);
             CurrentHoodState = RequestedHoodState;
         } else if (RequestedHoodState != CurrentHoodState) {
@@ -478,7 +502,7 @@ public class ShooterStateMachine {
         }
 
         if (CurrentTurretState == TurretState.TRACKING) {
-            runT2Angle(smoothAngle(getTurretAngle(robotpose)));
+            runT2Angle(smoothAngle(getBacklashTurretAngle(getTurretAngle(robotpose))));
         }
 
         if (CurrentHoodState == HoodState.READY) {
@@ -492,6 +516,22 @@ public class ShooterStateMachine {
         double alpha = 0.2; // smaller = smoother
         filteredAngle = filteredAngle + alpha * (newAngle - filteredAngle);
         return filteredAngle;
+    }
+
+    double lastTurretAngle = 0;
+    double lastDirection = 1;
+
+    public double getBacklashTurretAngle(double currentTargetAngle) {
+        double x = currentTargetAngle - lastTurretAngle;
+        if (Math.abs(x) > 0.001) {
+            lastDirection = x / Math.abs(x);
+        }
+
+        currentTargetAngle = currentTargetAngle - lastDirection * 2;
+
+        lastTurretAngle = currentTargetAngle;
+
+        return currentTargetAngle;
     }
 
     public boolean isComplete() {

@@ -65,19 +65,6 @@ public class Robot {
 
 
 
-    public double DistaceFromTarget() {
-        double PoseXFromTarget;
-
-        if (Drive.red) {
-            PoseXFromTarget = 129.5 - robotPose.getX();
-        } else {
-            PoseXFromTarget = robotPose.getX() - 14.5;
-        }
-
-        double PoseYFromTarget = 132 - mActualDrive.getPose().getY(DistanceUnit.INCH);
-
-        return Math.hypot(PoseXFromTarget, PoseYFromTarget) - 5;
-    }
 
     public void update() {
         mIntake.update(new Pose(

@@ -31,8 +31,8 @@ public class RedCloseTest extends OpMode {
     private final Pose shootPreload= new Pose(88.000, 103.000);
     private final Pose turn        = new Pose(98, 83.832);
     private final Pose pickUp1     = new Pose(125, 83.832);
-    private final Pose gateControl = new Pose(122.8, 75);
-    private final Pose gate1       = new Pose(120, 73.7);
+    private final Pose gateControl = new Pose(120, 75);
+    private final Pose gate1       = new Pose(120, 58.701);
     private final Pose gate2       = new Pose(124, 73.7);
     private final Pose shoot1      = new Pose(88.000, 103.000);
     private final Pose pickUp2     = new Pose(131.373, 58.701);
@@ -262,18 +262,19 @@ public class RedCloseTest extends OpMode {
                     .build();
 
             Gate1 = follower.pathBuilder()
-                    .addPath(new BezierCurve(pickUp1,gateControl, gate1))
-                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270))
+                    .addPath(new BezierCurve(pickUp2,gateControl, gate1))
+                    .setTangentHeadingInterpolation()
+                    .setReversed()
                     .build();
 
             Gate2 = follower.pathBuilder()
                     .addPath(new BezierLine(gate1, gate2))
-                    .setConstantHeadingInterpolation(Math.toRadians(90))
+                    .setConstantHeadingInterpolation(Math.toRadians(270))
                     .build();
 
             Shoot1 = follower.pathBuilder()
                     .addPath(new BezierLine(gate2, shoot1))
-                    .setLinearHeadingInterpolation(Math.toRadians(5), Math.toRadians(270)) // -175 + 180 = 5
+                    .setConstantHeadingInterpolation(Math.toRadians(270)) // -175 + 180 = 5
                     .build();
 
             Pickup2 = follower.pathBuilder()

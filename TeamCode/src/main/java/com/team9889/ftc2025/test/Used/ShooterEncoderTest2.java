@@ -8,9 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
 @Config
-@TeleOp
-@Disabled
-
 public class ShooterEncoderTest2 extends OpMode {
     Robot mRobot = new Robot();
     public static double shooterr = 0;

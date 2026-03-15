@@ -15,7 +15,7 @@ import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
 import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
-@Autonomous(name = "🟥🔻♻️Red2Alt2Far", group = "Red", preselectTeleOp = "Teleop")
+@Autonomous(name = "🟥🔻♻️RedCycleFar", group = "Red", preselectTeleOp = "Teleop")
 
 public class Red2Alt2Far extends OpMode {
 

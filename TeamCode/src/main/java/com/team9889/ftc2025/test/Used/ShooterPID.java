@@ -15,7 +15,6 @@ import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
 import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
-@TeleOp
 @Config
 @Disabled
 

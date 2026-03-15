@@ -11,7 +11,6 @@ import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
 
 @Config
-@TeleOp
 @Disabled
 
 public class ShooterTest extends OpMode {

@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.math.MathFunctions;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,6 +17,8 @@ import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
 @TeleOp
 @Config
+@Disabled
+
 public class ShooterPID extends OpMode {
     Robot mRobot = new Robot();
     public DcMotorEx shooterR, shooterL;

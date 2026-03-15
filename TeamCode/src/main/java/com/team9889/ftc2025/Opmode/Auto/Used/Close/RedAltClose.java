@@ -123,7 +123,8 @@ public class RedAltClose extends OpMode {
         switch (pathState) {
             case 0:
                 matchTimer.reset();
-                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOCLOSER);
+                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY);
+                mRobot.mShooter.AutoTurretPredictPose = paths.ShootPreload.endPose();
                 mRobot.mDrive.followPath(paths.ShootPreload);
                 setPathState(1);
                 break;
@@ -185,6 +186,7 @@ public class RedAltClose extends OpMode {
                 break;
             case 9:
                 if (!mRobot.mDrive.isBusy() && pickupTimer.milliseconds() > 750) {
+                    mRobot.mShooter.AutoTurretPredictPose = paths.GateShoot.endPose();
                     mRobot.mDrive.followPath(paths.GateShoot);
                     shotTimer.reset();
                     setPathState(999);
@@ -219,7 +221,8 @@ public class RedAltClose extends OpMode {
                 break;
             case 12:
                 if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTO2CLOSER);
+                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY);
+                    mRobot.mShooter.AutoTurretPredictPose = paths.Shoot2.endPose();
                     mRobot.mDrive.followPath(paths.Shoot2);
                     if (matchTimer.seconds() > 29.5) {
                         setPathState(2000);

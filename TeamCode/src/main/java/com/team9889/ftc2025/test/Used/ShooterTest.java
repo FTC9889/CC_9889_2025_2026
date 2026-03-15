@@ -3,6 +3,7 @@ package com.team9889.ftc2025.test.Used;
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.MathFunctions;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.team9889.ftc2025.Subsystem.Drive;
@@ -11,6 +12,8 @@ import com.team9889.ftc2025.Subsystem.Robot;
 
 @Config
 @TeleOp
+@Disabled
+
 public class ShooterTest extends OpMode {
 
     Robot mRobot = new Robot();

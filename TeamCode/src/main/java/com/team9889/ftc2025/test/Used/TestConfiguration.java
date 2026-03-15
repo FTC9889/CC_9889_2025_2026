@@ -2,6 +2,7 @@ package com.team9889.ftc2025.test.Used;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.math.MathFunctions;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.team9889.ftc2025.Subsystem.Intake;
@@ -9,6 +10,8 @@ import com.team9889.ftc2025.Subsystem.Robot;
 
 @TeleOp
 @Config
+@Disabled
+
 public class TestConfiguration extends OpMode {
 
     public static double shooterl = 0;

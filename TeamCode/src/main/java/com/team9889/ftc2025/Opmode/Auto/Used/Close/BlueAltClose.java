@@ -9,13 +9,12 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.RobotLog;
 import com.team9889.ftc2025.Subsystem.Drive;
 import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
 import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
-@Autonomous(name = "🟦⬆️♻️BlueAltClose", group = "Blue", preselectTeleOp = "Teleop")
+@Autonomous(name ="️🟦⬆️♻️BlueAltClose", group = "Blue", preselectTeleOp = "Teleop")
 public class BlueAltClose extends OpMode {
     Robot mRobot = new Robot();
 
@@ -25,24 +24,47 @@ public class BlueAltClose extends OpMode {
 
     ElapsedTime shotTimer = new ElapsedTime();
     ElapsedTime matchTimer = new ElapsedTime();
+    ElapsedTime pickupTimer = new ElapsedTime();
+    ElapsedTime gateTimer = new ElapsedTime();
+
+    Pose currentPose = new Pose();
 
     /* ---------------- FLIPPED POSES WITH +180° HEADINGS ---------------- */
 
-    private final Pose startPose   = new Pose(25.696, 129.149, Math.toRadians(-40));   // 37 + 180
-    private final Pose shootPreload= new Pose(58, 78.000);
-    private final Pose pickUp1     = new Pose(11, 58.500);
-    private final Pose Control1 = new Pose(60, 59.000);
-    private final Pose shoot      = new Pose(58, 78.000);
-    private final Pose pickUpGate     = new Pose(12, 61.000);
+    private final Pose startPose       = new Pose(25.696, 129.149, Math.toRadians(320));
+    private final Pose shootPreload    = new Pose(58.000, 78.000);
 
-    private final Pose pickUp2      = new Pose(18, 83.500);
-    private final Pose Control2     = new Pose(52, 90.000);
-    private final Pose park        = new Pose(32, 70.000);
+    private final Pose pickUp1         = new Pose(13.000, 58.500);
+    private final Pose Control1        = new Pose(60.000, 59.000);
+
+    private final Pose shoot           = new Pose(58.000, 78.000);
+
+    private final Pose pickUpGatePretend = new Pose(13, 65.000);
+
+    private final Pose pickUpGate      = new Pose(17.000, 65.000);
+    private final Pose gateControl1    = new Pose(57.4, 76.5);
+    private final Pose gateControl2    = new Pose(37.33, 64);
+    private final Pose pickupGate_2    = new Pose(12.000, 56.000);
+
+    private final Pose gateShootCon1   = new Pose(25.8, 56);
+    private final Pose gateShootCon2   = new Pose(51.9, 67.2);
+
+    private final Pose pickUp2         = new Pose(18, 84.5);
+
+    private final Pose shoot2Con1      = new Pose(36.9, 81.7);
+    private final Pose shoot2Con2      = new Pose(50, 85.6);
+
+    private final Pose shoot2          = new Pose(53.5, 91.7);
+
+    private final Pose epark           = new Pose(32.000, 70.000);
+    private final Pose park            = new Pose(42, 80);
+
 
 
     @Override
     public void init() {
-        Drive.red = true;
+        mRobot.mShooter.AutoTurretPredict = true;
+        Drive.red = false;
         mRobot.init(hardwareMap);
 
         pathTimer = new Timer();
@@ -62,6 +84,8 @@ public class BlueAltClose extends OpMode {
     @Override
     public void loop() {
 
+        currentPose = mRobot.mDrive.getPose();
+
         mRobot.mDrive.update();
         autonomousPathUpdate();
 
@@ -69,6 +93,27 @@ public class BlueAltClose extends OpMode {
         telemetry.addData("X", mRobot.mDrive.getPose().getX());
         telemetry.addData("Y", mRobot.mDrive.getPose().getY());
         telemetry.addData("Heading", Math.toDegrees(mRobot.mDrive.getPose().getHeading()));
+//        telemetry.addData("IntakeRequestedState", mRobot.mIntake.getRequestedFrontIntakeState());
+//        telemetry.addData("IntakeBackCurrentState", mRobot.mIntake.getCurrentBackIntakeState());
+//        telemetry.addData("IntakeFrontCurrentState", mRobot.mIntake.getCurrentFrontIntakeState());
+        telemetry.addLine("---------------------------------");
+
+        telemetry.addData("GateRequestedState", mRobot.mIntake.getRequestedGateState());
+        telemetry.addData("GateCurrentState", mRobot.mIntake.getCurrentGateState());
+        telemetry.addLine("-*--*--*--*--*--*--*--*--*--*--*-");
+
+        telemetry.addData("ShooterRequestedState", mRobot.mShooter.getRequestedShooterState());
+        telemetry.addData("ShooterCurrentState", mRobot.mShooter.getCurrentShooterState());
+        telemetry.addLine("---------------------------------");
+
+        telemetry.addData("HoodRequestedState", mRobot.mShooter.getRequestedHoodState());
+        telemetry.addData("HoodCurrentState", mRobot.mShooter.getCurrentHoodState());
+        telemetry.addLine("---------------------------------");
+
+        telemetry.addData("TurretRequestedState", mRobot.mShooter.getRequestedTurretState());
+        telemetry.addData("TurretCurrentState", mRobot.mShooter.getCurrentTurretState());
+
+        telemetry.addLine("********************************");
         telemetry.update();
         mRobot.update();
     }
@@ -77,19 +122,20 @@ public class BlueAltClose extends OpMode {
         switch (pathState) {
             case 0:
                 matchTimer.reset();
-                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOCLOSER);
+                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY);
+                mRobot.mShooter.AutoTurretPredictPose = paths.ShootPreload.endPose();
                 mRobot.mDrive.followPath(paths.ShootPreload);
                 setPathState(1);
                 break;
             case 1:
-                if (!mRobot.mDrive.isBusy()) {
+                if (!mRobot.mDrive.isBusy() && mRobot.isComplete()) {
                     shotTimer.reset();
-                    mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
+                    mRobot.mIntake.requestState(Intake.TopLevelState.AUTO_SHOOT);
                     setPathState(2);
                 }
                 break;
             case 2:
-                if (shotTimer.milliseconds() > 800) {
+                if (shotTimer.milliseconds() > 900) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
                     setPathState(3);
                 }
@@ -109,12 +155,12 @@ public class BlueAltClose extends OpMode {
             case 5:
                 if (!mRobot.mDrive.isBusy()) {
                     shotTimer.reset();
-                    mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
+                    mRobot.mIntake.requestState(Intake.TopLevelState.AUTO_SHOOT);
                     setPathState(6);
                 }
                 break;
             case 6:
-                if (shotTimer.milliseconds() > 800) {
+                if (shotTimer.milliseconds() > 900) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
                     setPathState(7);
                 }
@@ -122,26 +168,40 @@ public class BlueAltClose extends OpMode {
             case 7:
                 if (!mRobot.mDrive.isBusy()) {
                     mRobot.mDrive.followPath(paths.GatePickUp);
-                    setPathState(8);
+                    setPathState(10001);
                 }
                 break;
-            case 8:
+            case 10001:
                 if (!mRobot.mDrive.isBusy()) {
-                    mRobot.mDrive.followPath(paths.GateShoot);
+                    mRobot.mDrive.followPath(paths.PickupGate_2);
+                    setPathState(881);
+                }
+                break;
+            case 881:
+                if (!mRobot.mDrive.isBusy()) {
+                    pickupTimer.reset();
                     setPathState(9);
                 }
                 break;
             case 9:
+                if (!mRobot.mDrive.isBusy() && pickupTimer.milliseconds() > 750) {
+                    mRobot.mShooter.AutoTurretPredictPose = paths.GateShoot.endPose();
+                    mRobot.mDrive.followPath(paths.GateShoot);
+                    shotTimer.reset();
+                    setPathState(999);
+                }
+                break;
+            case 999:
                 if (!mRobot.mDrive.isBusy()) {
                     shotTimer.reset();
-                    mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
+                    mRobot.mIntake.requestState(Intake.TopLevelState.AUTO_SHOOT);
                     setPathState(10);
                 }
                 break;
             case 10:
-                if (shotTimer.milliseconds() > 800) {
+                if (shotTimer.milliseconds() > 900) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
-                    if (matchTimer.seconds() > 25) {
+                    if (matchTimer.seconds() > 22) {
                         setPathState(11);
                     } else {
                         setPathState(7);
@@ -151,35 +211,69 @@ public class BlueAltClose extends OpMode {
             case 11:
                 if (!mRobot.mDrive.isBusy()) {
                     mRobot.mDrive.followPath(paths.Pickup2);
-                    setPathState(12);
+                    if (matchTimer.seconds() > 29.5) {
+                        setPathState(2000);
+                    } else {
+                        setPathState(12);
+                    }
                 }
                 break;
             case 12:
                 if (!mRobot.mDrive.isBusy()) {
+                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY);
+                    mRobot.mShooter.AutoTurretPredictPose = paths.Shoot2.endPose();
                     mRobot.mDrive.followPath(paths.Shoot2);
-                    setPathState(13);
+                    if (matchTimer.seconds() > 29.5) {
+                        setPathState(2000);
+                    } else {
+                        setPathState(13);
+                    }
                 }
                 break;
             case 13:
                 if (!mRobot.mDrive.isBusy()) {
                     shotTimer.reset();
-                    mRobot.mIntake.requestState(Intake.TopLevelState.SHOOT);
-                    setPathState(14);
+                    mRobot.mIntake.requestState(Intake.TopLevelState.AUTO_SHOOT);
+                    if (matchTimer.seconds() > 29.5) {
+                        setPathState(2000);
+                    } else {
+                        setPathState(14);
+                    }
                 }
                 break;
             case 14:
-                if (shotTimer.milliseconds() > 800) {
-                    mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
-                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
-                    mRobot.mDrive.followPath(paths.Park);
-                    setPathState(15);
+                if (shotTimer.milliseconds() > 900) {
+                    if (matchTimer.seconds() > 29.5) {
+                        setPathState(2000);
+                    } else {
+                        mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
+                        mRobot.mDrive.followPath(paths.Park);
+                        setPathState(15);
+                    }
                 }
                 break;
             case 15:
                 if (!mRobot.mDrive.isBusy()) {
                     setPathState(-10000);
+                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
                 }
                 break;
+            case 2000:
+                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
+                mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
+                currentPose = mRobot.mDrive.getPose();
+                mRobot.mDrive.breakFollowing();
+                setPathState(2001);
+                break;
+            case 2001:
+                mRobot.mDrive.followPath(paths.EPARK);
+                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
+                setPathState(2002);
+                break;
+            case 2002:
+                if (!mRobot.mDrive.isBusy()) {
+                    setPathState(-2);
+                }
         }
     }
 
@@ -189,48 +283,58 @@ public class BlueAltClose extends OpMode {
     }
 
     public class Paths {
-        public PathChain ShootPreload, GatePickUp, Pickup1, GateShoot,  Shoot1, Pickup2, Shoot2, Park;
+        public PathChain ShootPreload, GatePickUp, Pickup1, GateShoot,  Shoot1, Pickup2, Shoot2, Park, EPARK, PickupGate_2;
 
         public Paths(Follower follower) {
 
             ShootPreload = follower.pathBuilder()
                     .addPath(new BezierLine(startPose, shootPreload))
-                    .setLinearHeadingInterpolation(Math.toRadians(-40), Math.toRadians(240)) // +180
+                    .setLinearHeadingInterpolation(Math.toRadians(320), Math.toRadians(240)) // flipped
                     .build();
 
             Pickup1 = follower.pathBuilder()
                     .addPath(new BezierCurve(shootPreload, Control1, pickUp1))
-                    .setLinearHeadingInterpolation(Math.toRadians(240), Math.toRadians(180)) // +180
+                    .setLinearHeadingInterpolation(Math.toRadians(240), Math.toRadians(180)) // flipped
                     .build();
 
             Shoot1 = follower.pathBuilder()
                     .addPath(new BezierLine(pickUp1, shoot))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(240)) // +180
+                    .setLinearHeadingInterpolation(Math.toRadians(184), Math.toRadians(240)) // flipped
                     .build();
 
             GatePickUp = follower.pathBuilder()
-                    .addPath(new BezierCurve(shoot, pickUpGate))
-                    .setLinearHeadingInterpolation(Math.toRadians(240), Math.toRadians(130))
+                    .addPath(new BezierCurve(shoot, gateControl1, gateControl2, pickUpGate))
+                    .setTangentHeadingInterpolation()
+                    .build();
+
+            PickupGate_2 = follower.pathBuilder()
+                    .addPath(new BezierLine(pickUpGate, pickupGate_2))
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(210)) // flipped
                     .build();
 
             GateShoot = follower.pathBuilder()
-                    .addPath(new BezierLine(pickUpGate, shoot))
-                    .setLinearHeadingInterpolation(Math.toRadians(130), Math.toRadians(240)) // -180 + 180 = 0
+                    .addPath(new BezierCurve(pickUpGatePretend, gateShootCon1, gateShootCon2, shoot))
+                    .setLinearHeadingInterpolation(Math.toRadians(204), Math.toRadians(240)) // flipped
                     .build();
 
             Shoot2 = follower.pathBuilder()
-                    .addPath(new BezierCurve(pickUp2, shoot))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(240))
+                    .addPath(new BezierCurve(pickUp2, shoot2Con1, shoot2Con2, shoot2))
+                    .setLinearHeadingInterpolation(Math.toRadians(171), Math.toRadians(240)) // flipped
                     .build();
 
             Pickup2 = follower.pathBuilder()
-                    .addPath(new BezierCurve(shoot, Control2, pickUp2))
-                    .setLinearHeadingInterpolation(Math.toRadians(240), Math.toRadians(180)) // +180
+                    .addPath(new BezierLine(shoot, pickUp2))
+                    .setTangentHeadingInterpolation()
                     .build();
 
             Park = follower.pathBuilder()
-                    .addPath(new BezierLine(shoot, park))
-                    .setLinearHeadingInterpolation(Math.toRadians(240), Math.toRadians(90))
+                    .addPath(new BezierLine(shoot2, park))
+                    .setLinearHeadingInterpolation(Math.toRadians(240), Math.toRadians(180)) // flipped
+                    .build();
+
+            EPARK = follower.pathBuilder()
+                    .addPath(new BezierLine(currentPose, epark))
+                    .setLinearHeadingInterpolation(currentPose.getHeading(), Math.toRadians(180))
                     .build();
         }
     }

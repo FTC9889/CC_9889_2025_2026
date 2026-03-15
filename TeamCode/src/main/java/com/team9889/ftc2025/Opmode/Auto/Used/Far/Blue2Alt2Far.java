@@ -15,7 +15,7 @@ import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
 import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
-@Autonomous(name = "🟥🔻♻️Blue2Alt2Far", group = "Red", preselectTeleOp = "Teleop")
+@Autonomous(name = "🟦⬇️♻️Blue2Alt2Far", group = "Blue", preselectTeleOp = "Teleop")
 
 public class Blue2Alt2Far extends OpMode {
 
@@ -32,31 +32,31 @@ public class Blue2Alt2Far extends OpMode {
 
     /* ---------------- POSES ---------------- */
 
-    private final Pose startPose = new Pose(81, 8.230, Math.toRadians(270));
+    private final Pose startPose = new Pose(57, 8.230, Math.toRadians(270));
 
-    private final Pose turn = new Pose(81, 35.000);
+    private final Pose turn = new Pose(57, 35.000);
 
-    private final Pose pickup1 = new Pose(36, 35);
+    private final Pose pickup1 = new Pose(12, 35);
 
-    private final Pose shoot1 = new Pose(81, 15.000);
+    private final Pose shoot1 = new Pose(57, 15.000);
 
-    private final Pose pickup2 = new Pose(38, 15);
-    private final Pose pickup2_2 = new Pose(38, 9.3);
-    private final Pose wiggle1 = new Pose(36, 9.7);
+    private final Pose pickup2 = new Pose(14, 15);
+    private final Pose pickup2_2 = new Pose(14, 9.3);
+    private final Pose wiggle1 = new Pose(12, 9.7);
 
-    private final Pose shoot2 = new Pose(81, 15.500);
+    private final Pose shoot2 = new Pose(57, 15.500);
 
-    private final Pose pickup3 = new Pose(38, 9.7);
-    private final Pose shoot3 = new Pose(81, 15.500);
+    private final Pose pickup3 = new Pose(14, 9.7);
+    private final Pose shoot3 = new Pose(57, 15.500);
 
-    private final Pose pickup4 = new Pose(24.000, 8.500);
-    private final Pose shoot4 = new Pose(81, 15.500);
+    private final Pose pickup4 = new Pose(0.000, 8.500);
+    private final Pose shoot4 = new Pose(57, 15.500);
 
-    private final Pose park = new Pose(51.000, 15.500);
+    private final Pose park = new Pose(27.000, 15.500);
     @Override
     public void init() {
         mRobot.mShooter.AutoTurretPredict = true;
-        Drive.red = true;
+        Drive.red = false;
 
         mRobot.init(hardwareMap);
 
@@ -82,64 +82,55 @@ public class Blue2Alt2Far extends OpMode {
     /* ---------------- BUILD PATHS ---------------- */
 
     public void buildPaths() {
+
         Turn = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(startPose, turn))
-                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(180))
                 .build();
 
         Pickup1 = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(turn, pickup1))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
 
         Shoot1 = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(pickup1, shoot1))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(300))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(240))
                 .build();
 
-        Pickup2= mRobot.mDrive.pathBuilder()
+        Pickup2 = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(shoot1, pickup2))
-                .setLinearHeadingInterpolation(Math.toRadians(300), Math.toRadians(345))
+                .setLinearHeadingInterpolation(Math.toRadians(240), Math.toRadians(195))
                 .build();
 
-        Pickup2_2= mRobot.mDrive.pathBuilder()
+        Pickup2_2 = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(pickup2, pickup2_2))
-                .setConstantHeadingInterpolation(Math.toRadians(345))
+                .setConstantHeadingInterpolation(Math.toRadians(195))
                 .build();
 
         Wiggle1 = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(pickup2_2, wiggle1))
-                .setLinearHeadingInterpolation(Math.toRadians(345), Math.toRadians(-9))
+                .setLinearHeadingInterpolation(Math.toRadians(195), Math.toRadians(189))
                 .build();
 
         Shoot2 = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(wiggle1, shoot2))
-                .setLinearHeadingInterpolation(Math.toRadians(-8), Math.toRadians(300))
+                .setLinearHeadingInterpolation(Math.toRadians(188), Math.toRadians(240))
                 .build();
 
         Pickup3 = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(shoot2, pickup3))
-                .setLinearHeadingInterpolation(Math.toRadians(300), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(240), Math.toRadians(180))
                 .build();
-//
+
         Shoot3 = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(pickup3, shoot3))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(300))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(240))
                 .build();
-//
-//        Pickup4Prediction2 = mRobot.mDrive.pathBuilder()
-//                .addPath(new BezierLine(shoot3, pickup4))
-//                .setLinearHeadingInterpolation(Math.toRadians(330), Math.toRadians(0))
-//                .build();
-//
-//        Shoot4 = mRobot.mDrive.pathBuilder()
-//                .addPath(new BezierLine(pickup4, shoot4))
-//                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(330))
-//                .build();
-//
+
         Park = mRobot.mDrive.pathBuilder()
                 .addPath(new BezierLine(shoot3, park))
-                .setLinearHeadingInterpolation(Math.toRadians(330), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(210), Math.toRadians(180))
                 .build();
     }
 

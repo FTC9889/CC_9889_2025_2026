@@ -15,8 +15,8 @@ import com.team9889.ftc2025.Subsystem.Intake;
 import com.team9889.ftc2025.Subsystem.Robot;
 import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
-@Autonomous(name = "🟥🔺RedCloseTest", group = "Red", preselectTeleOp = "Teleop")
-public class RedCloseTest extends OpMode {
+@Autonomous(name = "🟥🔺RedStandard", group = "Red", preselectTeleOp = "Teleop")
+public class RedStandard extends OpMode {
     Robot mRobot = new Robot();
 
     private Timer pathTimer;

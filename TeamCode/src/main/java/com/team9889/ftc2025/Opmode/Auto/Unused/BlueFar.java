@@ -1,4 +1,4 @@
-package com.team9889.ftc2025.Opmode.Auto.Used.Far;
+package com.team9889.ftc2025.Opmode.Auto.Unused;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
@@ -15,8 +15,8 @@ import com.team9889.ftc2025.Subsystem.Robot;
 import com.team9889.ftc2025.Subsystem.Shooter.ShooterStateMachine;
 
 @Disabled
-@Autonomous(name = "🟥🔻RedFar", group = "Red", preselectTeleOp = "Teleop")
-public class RedFar extends OpMode {
+@Autonomous(name = "🟦⬇️BlueFar", group = "Blue", preselectTeleOp = "Teleop")
+public class BlueFar extends OpMode {
     Robot mRobot = new Robot();
 
     private Timer pathTimer;
@@ -28,20 +28,20 @@ public class RedFar extends OpMode {
 
     /* ---------------- FLIPPED POSES WITH +180° HEADINGS ---------------- */
 
-    private final Pose startPose   = new Pose(88, 8.000, Math.toRadians(-90));
-    private final Pose shoot       = new Pose(88, 16.500);
-    private final Pose turn        = new Pose(96.5, 35.500);
-    private final Pose pickUp1     = new Pose(131.5, 35.500);
-    private final Pose shoot1      = new Pose(shoot.getX(), shoot.getY());
-    private final Pose pickup2     = new Pose(131.5, 35.500);
-    private final Pose pickup2_2   = new Pose(131.5, 9.500);
-    private final Pose shoot2      = new Pose(shoot.getX(), shoot.getY());
-    private final Pose park         = new Pose(104, 16.500);
+    private final Pose startPose   = new Pose(56.000, 8.000, Math.toRadians(-90));
+    private final Pose shoot       = new Pose(56.000, 16.500);
+    private final Pose turn        = new Pose(47.500, 35.500);
+    private final Pose pickUp1     = new Pose(12.500, 35.500);
+    private final Pose shoot1       = new Pose(shoot.getX(), shoot.getY());
+    private final Pose pickup2       = new Pose(10.500, 35.500);
+    private final Pose pickup2_2      = new Pose(10.500, 9.500);
+    private final Pose shoot2     = new Pose(shoot.getX(), shoot.getY());
+    private final Pose park    = new Pose(40.000, 16.500);
 
 
     @Override
     public void init() {
-        Drive.red = true;
+        Drive.red = false;
         mRobot.init(hardwareMap);
 
         pathTimer = new Timer();
@@ -76,7 +76,7 @@ public class RedFar extends OpMode {
         switch (pathState) {
             case 0:
                 mRobot.mDrive.followPath(paths.ShootPreload);
-                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTORF);
+                mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOBF);
                 setPathState(101);
                 break;
             case 101:
@@ -97,7 +97,6 @@ public class RedFar extends OpMode {
                 if (mRobot.isComplete() && shotTimer.milliseconds() > 1000){
                     mRobot.mDrive.followPath(paths.Pickup1);
                     mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
-                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);
                     setPathState(1001);
                 }
                 break;
@@ -129,7 +128,7 @@ public class RedFar extends OpMode {
             case 3:
                 if (mRobot.mIntake.isComplete() && shotTimer.milliseconds() > 1000) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
-                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTORF);
+                    mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.AUTOBF);
                     mRobot.mDrive.followPath(paths.Pickup2);
                     setPathState(4);
                 }
@@ -179,7 +178,7 @@ public class RedFar extends OpMode {
 
             Turn = follower.pathBuilder()
                     .addPath(new BezierLine(shoot, turn))
-                    .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0)) // +180
+                    .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(180)) // +180
                     .build();
 
             Pickup1 = follower.pathBuilder()
@@ -189,7 +188,7 @@ public class RedFar extends OpMode {
 
             Shoot1 = follower.pathBuilder()
                     .addPath(new BezierLine(pickUp1, shoot1))
-                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270))
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(270))
                     .build();
 
             Pickup2 = follower.pathBuilder()
@@ -209,7 +208,7 @@ public class RedFar extends OpMode {
 
             Park = follower.pathBuilder()
                     .addPath(new BezierLine(shoot2, park))
-                    .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0)) // -180 + 180 = 0
+                    .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(180)) // -180 + 180 = 0
                     .build();
         }
     }

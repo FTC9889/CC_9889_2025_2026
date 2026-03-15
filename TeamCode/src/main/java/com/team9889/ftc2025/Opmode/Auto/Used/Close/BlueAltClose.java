@@ -309,7 +309,7 @@ public class BlueAltClose extends OpMode {
 
             PickupGate_2 = follower.pathBuilder()
                     .addPath(new BezierLine(pickUpGate, pickupGate_2))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(210)) // flipped
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(150)) // flipped
                     .build();
 
             GateShoot = follower.pathBuilder()

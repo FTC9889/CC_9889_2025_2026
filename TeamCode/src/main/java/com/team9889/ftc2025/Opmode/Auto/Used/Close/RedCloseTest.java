@@ -57,7 +57,7 @@ public class RedCloseTest extends OpMode {
 
     private final Pose pickup5     = new Pose(130, 9);
 
-    private final Pose park        = new Pose(100, 69);
+    private final Pose park        = new Pose(135, 70);
 
 
     @Override
@@ -163,7 +163,7 @@ public class RedCloseTest extends OpMode {
                 }
                 break;
             case 9:
-                if (!mRobot.mDrive.isBusy() && mRobot.isComplete() && waitTImer.milliseconds() > 400) {
+                if (!mRobot.mDrive.isBusy() && mRobot.isComplete()) {
                     mRobot.mIntake.intakeL.setPower(0);
                     mRobot.mDrive.followPath(paths.Shoot2);
                     mRobot.mShooter.AutoTurretPredictPose = paths.Shoot2.endPose();
@@ -205,20 +205,21 @@ public class RedCloseTest extends OpMode {
                 break;
             case 14:
                 if (!mRobot.mDrive.isBusy() && shotTimer.milliseconds() > 1000) {
-                    mRobot.mDrive.followPath(paths.Pickup4);
+                    mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
+                    mRobot.mDrive.followPath(paths.Pickup5);
                     setPathState(15);
                 }
                 break;
             case 15:
                 if (!mRobot.mDrive.isBusy()) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
-                    mRobot.mDrive.followPath(paths.Pickup4_2);
+                    mRobot.mDrive.followPath(paths.Pickup5_2);
                     waitTImer.reset();
                     setPathState(16);
                 }
                 break;
             case 16:
-                if ((!mRobot.mDrive.isBusy() && mRobot.isComplete()) || waitTImer.milliseconds() > 1500) {
+                if ((!mRobot.mDrive.isBusy() && mRobot.isComplete()) || waitTImer.milliseconds() > 500) {
                     mRobot.mIntake.intakeL.setPower(0);
                     mRobot.mShooter.AutoTurretPredictPose = paths.Shoot4.endPose();
                     mRobot.mDrive.followPath(paths.Shoot4);
@@ -353,7 +354,7 @@ public class RedCloseTest extends OpMode {
 
             Park = follower.pathBuilder()
                     .addPath(new BezierLine(shoot4, park))
-                    .setTangentHeadingInterpolation()
+                    .setConstantHeadingInterpolation(Math.toRadians(270))
                     .build();
         }
     }

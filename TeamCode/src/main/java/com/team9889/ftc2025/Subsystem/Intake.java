@@ -160,15 +160,19 @@ public class Intake {
 
 
     public static double intakePower(double goalDistance) {
-        return MathFunctions.clamp(
-                1.4991e-8 * Math.pow(goalDistance, 4)
-                        - 4.35809e-6 * Math.pow(goalDistance, 3)
-                        + 0.000375634 * Math.pow(goalDistance, 2)
-                        - 0.011593 * goalDistance
-                        + 1.1087,
-                0,
-                1
-        );
+        if (goalDistance > 105) {
+            return 0.75;
+        } else {
+            return MathFunctions.clamp(
+                    1.4991e-8 * Math.pow(goalDistance, 4)
+                            - 4.35809e-6 * Math.pow(goalDistance, 3)
+                            + 0.000375634 * Math.pow(goalDistance, 2)
+                            - 0.011593 * goalDistance
+                            + 1.1087,
+                    0,
+                    1
+            );
+        }
     }
 
 

@@ -57,15 +57,7 @@ public class Teleop extends OpMode {
 
         telemetry.setMsTransmissionInterval(11);
 
-        Drive.red = true;
-
-        if (Drive.red) {
-            mRobot.mShooter.limelight.pipelineSwitch(0);
-//            AparkPose = RedPark;
-        } else {
-            mRobot.mShooter.limelight.pipelineSwitch(1);
-//            AparkPose = BluePark;
-        }
+        mRobot.mShooter.limelight.pipelineSwitch(0);
 
         mRobot.mIntake.requestState(Intake.TopLevelState.OFF);
         mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.DEFAULT);

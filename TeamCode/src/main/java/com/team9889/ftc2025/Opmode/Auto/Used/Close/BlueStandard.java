@@ -57,7 +57,7 @@ public class BlueStandard extends OpMode {
 
     private final Pose pickup5     = new Pose(14, 9);
 
-    private final Pose park        = new Pose(7, 70);
+    private final Pose park        = new Pose(7, 30);
 
 
     @Override

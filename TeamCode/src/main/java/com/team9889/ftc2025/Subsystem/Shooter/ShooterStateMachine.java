@@ -384,7 +384,7 @@ public class ShooterStateMachine {
             if (Drive.red) {
                 dx = 130 - Xt;
             } else {
-                dx = 14 - Xt;
+                dx = 18 - Xt;
             }
 
             double dy = targetY - Yt;

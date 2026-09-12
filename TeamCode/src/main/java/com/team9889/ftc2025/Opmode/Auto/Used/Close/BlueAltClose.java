@@ -26,6 +26,7 @@ public class BlueAltClose extends OpMode {
     ElapsedTime matchTimer = new ElapsedTime();
     ElapsedTime pickupTimer = new ElapsedTime();
     ElapsedTime gateTimer = new ElapsedTime();
+    ElapsedTime waitTimer = new ElapsedTime();
 
     Pose currentPose = new Pose();
 
@@ -34,14 +35,14 @@ public class BlueAltClose extends OpMode {
     private final Pose startPose       = new Pose(25.696, 129.149, Math.toRadians(320));
     private final Pose shootPreload    = new Pose(58.000, 78.000);
 
-    private final Pose pickUp1         = new Pose(13.000, 58.500);
+    private final Pose pickUp1         = new Pose(15.000, 58.500);
     private final Pose Control1        = new Pose(60.000, 59.000);
 
     private final Pose shoot           = new Pose(58.000, 78.000);
 
     private final Pose pickUpGatePretend = new Pose(13, 65.000);
 
-    private final Pose pickUpGate      = new Pose(17.000, 65.000);
+    private final Pose pickUpGate      = new Pose(18.500, 64.000);
     private final Pose gateControl1    = new Pose(57.4, 76.5);
     private final Pose gateControl2    = new Pose(37.33, 64);
     private final Pose pickupGate_2    = new Pose(12.000, 56.000);
@@ -125,10 +126,16 @@ public class BlueAltClose extends OpMode {
                 mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY);
                 mRobot.mShooter.AutoTurretPredictPose = paths.ShootPreload.endPose();
                 mRobot.mDrive.followPath(paths.ShootPreload);
-                setPathState(1);
+                setPathState(1111);
+                break;
+            case 1111:
+                if (!mRobot.mDrive.isBusy()) {
+                    waitTimer.reset();
+                    setPathState(1);
+                }
                 break;
             case 1:
-                if (!mRobot.mDrive.isBusy() && mRobot.isComplete()) {
+                if (!mRobot.mDrive.isBusy() && mRobot.isComplete() && waitTimer.milliseconds() > 500) {
                     shotTimer.reset();
                     mRobot.mIntake.requestState(Intake.TopLevelState.AUTO_SHOOT);
                     setPathState(2);
@@ -148,6 +155,7 @@ public class BlueAltClose extends OpMode {
                 break;
             case 4:
                 if (!mRobot.mDrive.isBusy()) {
+                    mRobot.mShooter.AutoTurretPredictPose = paths.Shoot1.endPose();
                     mRobot.mDrive.followPath(paths.Shoot1);
                     setPathState(5);
                 }
@@ -184,7 +192,7 @@ public class BlueAltClose extends OpMode {
                 }
                 break;
             case 9:
-                if (!mRobot.mDrive.isBusy() && pickupTimer.milliseconds() > 750) {
+                if (!mRobot.mDrive.isBusy() && pickupTimer.milliseconds() > 650) {
                     mRobot.mShooter.AutoTurretPredictPose = paths.GateShoot.endPose();
                     mRobot.mDrive.followPath(paths.GateShoot);
                     shotTimer.reset();
@@ -202,6 +210,7 @@ public class BlueAltClose extends OpMode {
                 if (shotTimer.milliseconds() > 900) {
                     mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);
                     if (matchTimer.seconds() > 22) {
+                        mRobot.mDrive.breakFollowing();
                         setPathState(11);
                     } else {
                         setPathState(7);
@@ -212,6 +221,7 @@ public class BlueAltClose extends OpMode {
                 if (!mRobot.mDrive.isBusy()) {
                     mRobot.mDrive.followPath(paths.Pickup2);
                     if (matchTimer.seconds() > 29.5) {
+                        mRobot.mDrive.breakFollowing();
                         setPathState(2000);
                     } else {
                         setPathState(12);
@@ -224,6 +234,7 @@ public class BlueAltClose extends OpMode {
                     mRobot.mShooter.AutoTurretPredictPose = paths.Shoot2.endPose();
                     mRobot.mDrive.followPath(paths.Shoot2);
                     if (matchTimer.seconds() > 29.5) {
+                        mRobot.mDrive.breakFollowing();
                         setPathState(2000);
                     } else {
                         setPathState(13);
@@ -235,6 +246,7 @@ public class BlueAltClose extends OpMode {
                     shotTimer.reset();
                     mRobot.mIntake.requestState(Intake.TopLevelState.AUTO_SHOOT);
                     if (matchTimer.seconds() > 29.5) {
+                        mRobot.mDrive.breakFollowing();
                         setPathState(2000);
                     } else {
                         setPathState(14);
@@ -244,6 +256,7 @@ public class BlueAltClose extends OpMode {
             case 14:
                 if (shotTimer.milliseconds() > 900) {
                     if (matchTimer.seconds() > 29.5) {
+                        mRobot.mDrive.breakFollowing();
                         setPathState(2000);
                     } else {
                         mRobot.mIntake.requestState(Intake.TopLevelState.INTAKE);

@@ -26,6 +26,7 @@ public class RedAltClose extends OpMode {
     ElapsedTime matchTimer = new ElapsedTime();
     ElapsedTime pickupTimer = new ElapsedTime();
     ElapsedTime gateTimer = new ElapsedTime();
+    ElapsedTime waitTimer = new ElapsedTime();
 
     Pose currentPose = new Pose();
 
@@ -34,17 +35,17 @@ public class RedAltClose extends OpMode {
     private final Pose startPose       = new Pose(118.304, 129.149, Math.toRadians(220));   // 37 + 180
     private final Pose shootPreload    = new Pose(86.000, 78.000);
 
-    private final Pose pickUp1         = new Pose(131.000, 58.500);
+    private final Pose pickUp1         = new Pose(129, 58.500);
     private final Pose Control1        = new Pose(84.000, 59.000);
 
     private final Pose shoot           = new Pose(86.000, 78.000);
 
     private final Pose pickUpGatePretend      = new Pose(131, 65.000);
 
-    private final Pose pickUpGate      = new Pose(127.000, 65.000);
+    private final Pose pickUpGate      = new Pose(125.500, 65.000);
     private final Pose gateControl1     = new Pose(86.6, 76.5);
     private final Pose gateControl2     = new Pose(106.67, 64);
-    private final Pose pickupGate_2     = new Pose(132.000, 56.000);
+    private final Pose pickupGate_2     = new Pose(131.000, 56.000);
 
     private final Pose gateShootCon1   = new Pose(118.2, 56);
     private final Pose gateShootCon2   = new Pose(92.1, 67.2);
@@ -126,10 +127,16 @@ public class RedAltClose extends OpMode {
                 mRobot.mShooter.requestState(ShooterStateMachine.TopLevelState.READY);
                 mRobot.mShooter.AutoTurretPredictPose = paths.ShootPreload.endPose();
                 mRobot.mDrive.followPath(paths.ShootPreload);
-                setPathState(1);
+                setPathState(1111);
+                break;
+            case 1111:
+                if (!mRobot.mDrive.isBusy()) {
+                    waitTimer.reset();
+                    setPathState(1);
+                }
                 break;
             case 1:
-                if (!mRobot.mDrive.isBusy() && mRobot.isComplete()) {
+                if (!mRobot.mDrive.isBusy() && mRobot.isComplete() && waitTimer.milliseconds() > 500) {
                     shotTimer.reset();
                     mRobot.mIntake.requestState(Intake.TopLevelState.AUTO_SHOOT);
                     setPathState(2);
@@ -149,6 +156,7 @@ public class RedAltClose extends OpMode {
                 break;
             case 4:
                 if (!mRobot.mDrive.isBusy()) {
+                    mRobot.mShooter.AutoTurretPredictPose = paths.Shoot1.endPose();
                     mRobot.mDrive.followPath(paths.Shoot1);
                     setPathState(5);
                 }
@@ -185,7 +193,7 @@ public class RedAltClose extends OpMode {
                 }
                 break;
             case 9:
-                if (!mRobot.mDrive.isBusy() && pickupTimer.milliseconds() > 750) {
+                if (!mRobot.mDrive.isBusy() && pickupTimer.milliseconds() > 650) {
                     mRobot.mShooter.AutoTurretPredictPose = paths.GateShoot.endPose();
                     mRobot.mDrive.followPath(paths.GateShoot);
                     shotTimer.reset();
@@ -310,7 +318,7 @@ public class RedAltClose extends OpMode {
 
             PickupGate_2 = follower.pathBuilder()
                     .addPath(new BezierLine(pickUpGate, pickupGate_2))
-                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(30))
+                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(35))
                     .build();
 
             GateShoot = follower.pathBuilder()

@@ -57,7 +57,7 @@ public class RedStandard extends OpMode {
 
     private final Pose pickup5     = new Pose(130, 9);
 
-    private final Pose park        = new Pose(135, 70);
+    private final Pose park        = new Pose(135, 30);
 
 
     @Override
